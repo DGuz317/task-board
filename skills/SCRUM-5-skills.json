@@ -1,0 +1,210 @@
+{
+  "skills": [
+    {
+      "name": "Repo Layout & Backend Dependencies",
+      "tool": "Python 3.11 / pip / git",
+      "priority": "P0",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Creates the monorepo directory layout, Python dependency manifest, and repository hygiene files so later skills have a stable base.",
+      "dependencies": [],
+      "prompt_template": "You are scaffolding a Python 3.11+ FastAPI backend inside a monorepo. Create /backend (with empty-but-importable main.py, db.py, models.py and a tests/ package) and an empty /frontend/src directory exactly as the PRD lays out. Add backend/requirements.txt with pinned-minimum fastapi, pydantic>=2, uvicorn[standard], pytest, httpx, and ruff, plus a root .gitignore (venv, node_modules, dist, .env, *.sqlite/*.db, __pycache__). Do not add domain models, secrets, or real config values; keep db.py and models.py as documented placeholders only.",
+      "acceptance_criteria": [
+        "The paths backend/main.py, backend/db.py, backend/models.py, backend/tests/ and frontend/src/ exist in the repo",
+        "pip install -r backend/requirements.txt succeeds on Python 3.11 in a fresh virtualenv",
+        "requirements.txt lists fastapi, pydantic (>=2), uvicorn, pytest, httpx and ruff",
+        ".gitignore ignores .env, node_modules, dist, __pycache__ and SQLite/db files, and no .env file is committed",
+        "python -c 'import backend.db, backend.models' run from the repo root exits with code 0"
+      ]
+    },
+    {
+      "name": "FastAPI App Factory & Health",
+      "tool": "FastAPI / Pydantic v2 / pytest + TestClient",
+      "priority": "P0",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Implements the FastAPI app factory mounted under /api with a health endpoint, a uniform {\"detail\": ...} error shape, OpenAPI docs, and the project's single env-driven CORS configuration (the sole owner of CORS middleware), plus a backend smoke test.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Implement create_app() in backend/main.py that builds the FastAPI app, mounts an APIRouter under /api exposing GET /api/health, and serves OpenAPI at /docs. This /api router is the single mount point for the API: later feature routers (for example /api/tasks) must be included under this same /api prefix. Read all configuration from environment variables (FRONTEND_ORIGIN, SQLITE_PATH) through a small settings helper with safe defaults; configure CORSMiddleware to allow only the FRONTEND_ORIGIN value and never '*'. This is the only place CORS middleware is configured in the project; later epics must reuse it and must not re-implement or re-register it. Register exception handlers so HTTPException, validation errors (422) and unhandled errors all return JSON shaped {\"detail\": ...}. Add backend/tests/test_health.py using TestClient that hits the health endpoint, and keep domain models out of scope.",
+      "acceptance_criteria": [
+        "GET /api/health returns HTTP 200 with a JSON body such as {\"status\": \"ok\"}",
+        "GET /docs returns HTTP 200 and GET /openapi.json lists the /api/health path",
+        "Requesting an unknown path such as /api/does-not-exist returns 404 with a JSON body containing a 'detail' key",
+        "A request with an Origin header equal to FRONTEND_ORIGIN receives an access-control-allow-origin header with that exact value",
+        "A request with a different Origin header does not receive access-control-allow-origin, and the header value is never '*'",
+        "Unsetting FRONTEND_ORIGIN does not crash app creation and yields no wildcard CORS",
+        "CORSMiddleware is registered exactly once in the backend code, inside create_app()",
+        "cd backend && pytest passes with the health smoke test included",
+        "No secret or credential literal appears in any committed backend file"
+      ]
+    },
+    {
+      "name": "Vite React Frontend Scaffold",
+      "tool": "Vite / React 18 / Vitest / React Testing Library",
+      "priority": "P0",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Initializes the React 18 + Vite frontend with plain CSS, hooks-only conventions, Vitest, and React Testing Library, removes the Vite starter content, and provides the single shared API base URL config module (VITE_API_BASE_URL, including the /api prefix) that all frontend API calls build on.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Set up /frontend as a React 18+ Vite project with src/main.jsx (or .tsx) mounting <App /> into index.html, plain CSS only, no Redux or CSS frameworks. Add react-router-dom, vitest, jsdom, @testing-library/react, @testing-library/jest-dom and @testing-library/user-event, configure Vitest (jsdom environment, setup file) in vite.config, and add npm scripts dev, build, preview and test (vitest run). Delete all Vite starter assets and demo content; App may render only a minimal placeholder heading until the app-shell skill replaces it. Define the frontend-to-backend wiring contract in one module, frontend/src/config.js: export API_BASE_URL read from import.meta.env.VITE_API_BASE_URL, never hard-coding it elsewhere. VITE_API_BASE_URL is the only env variable name used for the API location (do not use VITE_API_URL); its value includes the backend's /api prefix (for example http://localhost:8000/api) and the module strips any trailing slash, falling back to http://localhost:8000/api when unset. Feature code must build URLs as `${API_BASE_URL}/<resource>` (for example `${API_BASE_URL}/tasks` resolving to /api/tasks) and never prepend /api again. Add a small Vitest test for the config module's trailing-slash normalization.",
+      "acceptance_criteria": [
+        "npm install in /frontend succeeds and package.json declares react >=18, vite, vitest, @testing-library/react and react-router-dom",
+        "npm run build in /frontend succeeds and produces frontend/dist/",
+        "npm test in /frontend runs Vitest in jsdom and exits 0 with at least one placeholder test passing",
+        "package.json does not list redux, @reduxjs/toolkit, or any CSS framework as a dependency",
+        "The Vite starter files (logo SVGs, counter demo, App.css starter styles) are absent from frontend/src",
+        "Running npm run dev and opening the dev URL shows the placeholder app root, not the Vite + React starter page",
+        "frontend/src/config.js exports API_BASE_URL derived from import.meta.env.VITE_API_BASE_URL with trailing slashes removed, and a Vitest test verifies that 'http://localhost:8000/api/' normalizes to 'http://localhost:8000/api'",
+        "The frontend source contains no reference to VITE_API_URL and no hard-coded backend host outside the config.js default"
+      ]
+    },
+    {
+      "name": "Global Stylesheet & Design Tokens",
+      "tool": "Plain CSS custom properties",
+      "priority": "P0",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Creates the global CSS file defining design tokens (palette, spacing, typography), 44px touch targets, a visible focus ring, and reduced-motion handling.",
+      "dependencies": [
+        "SKILL_003"
+      ],
+      "prompt_template": "Write frontend/src/styles/global.css (imported once from main) with :root CSS variables for the PRD palette (white page background, near-black text, neutral gray borders, one accent color, a distinct error color), a spacing scale (e.g. --space-1 4px through --space-6 48px), a system-font typography scale and line-heights. Add a minimal reset, a .container class centered with max-width 1100px and consistent horizontal padding, a rule that makes buttons/links/inputs at least 44px tall and wide for touch, a :focus-visible rule drawing a 2px solid outline with offset using the accent color, and a prefers-reduced-motion: reduce block that disables animations and transitions. Keep the look clean, white and uncluttered with rounded corners and generous padding, and stay responsive down to ~360px width.",
+      "acceptance_criteria": [
+        "global.css defines CSS variables for color (background, text, border, accent, error), spacing scale, and font sizes under :root",
+        "global.css contains a :focus-visible rule with a 2px outline",
+        "global.css contains an @media (prefers-reduced-motion: reduce) block that sets animation and transition durations to effectively zero",
+        "Interactive elements (button, a, input) have min-height and min-width of 44px in the stylesheet",
+        "The .container class sets max-width: 1100px and margin-inline auto",
+        "global.css is imported from the frontend entry file and npm run build still succeeds",
+        "In the running app, the page background is white and pressing Tab shows a visible 2px outline on the focused element"
+      ]
+    },
+    {
+      "name": "Routed App Shell & Error Boundary",
+      "tool": "React 18 / react-router-dom / Vitest + React Testing Library",
+      "priority": "P0",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Builds the runnable app shell with client-side routes for the board list and board detail, a page header, a not-found route, a top-level error boundary, and a frontend smoke test.",
+      "dependencies": [
+        "SKILL_003",
+        "SKILL_004"
+      ],
+      "prompt_template": "Implement the real app shell in frontend/src: a Layout component with a page header (app title) inside the centered 1100px container from the global stylesheet, a BrowserRouter with routes '/' (BoardListPage), '/boards/:id' (BoardDetailPage reading the id param) and '*' (NotFoundPage with a link back home), each rendering minimal real headings and placeholder text that feature epics will fill in. Wrap the app in a class-based ErrorBoundary that shows a friendly fallback with a reload button using the shared tokens (white surface, gray borders, rounded corners, spacing scale, 44px buttons, visible focus ring). Use hooks only, plain CSS classes, no inline magic numbers, and add a Vitest + RTL smoke test that renders the shell with MemoryRouter.",
+      "acceptance_criteria": [
+        "Opening / in the running app shows the page header and the board list placeholder view inside a container no wider than 1100px",
+        "Opening /boards/42 in the running app shows the board detail view and it displays the id 42",
+        "Opening /some/unknown/path shows a not-found message with a link that navigates back to /",
+        "Rendering a child that throws inside ErrorBoundary shows the fallback UI instead of a blank page",
+        "Frontend smoke test renders the app shell and asserts the header text is present, and npm test passes",
+        "Header, buttons and links use the shared CSS variables for spacing and color rather than hard-coded values, and interactive elements are at least 44px tall",
+        "npm run build succeeds and the built index.html mounts the real shell, not the Vite starter page"
+      ]
+    },
+    {
+      "name": "Playwright E2E Configuration",
+      "tool": "Playwright",
+      "priority": "P1",
+      "skill_id": "SKILL_006",
+      "testcases": [],
+      "capability": "Installs and configures Playwright with a webServer config that boots both backend and frontend, plus e2e tests confirming the shell loads and the running frontend can reach the backend at the configured /api base URL.",
+      "dependencies": [
+        "SKILL_002",
+        "SKILL_003",
+        "SKILL_005"
+      ],
+      "prompt_template": "Add @playwright/test to the frontend (or a root e2e folder) with playwright.config that defines a webServer array: one entry starting the FastAPI backend with uvicorn on a fixed port and waiting on /api/health, and one starting the Vite dev server and waiting on its URL, both with reuseExistingServer outside CI. Pass FRONTEND_ORIGIN and VITE_API_BASE_URL through the webServer env so CORS matches; VITE_API_BASE_URL must include the /api prefix (for example http://localhost:8000/api) to match the contract in frontend/src/config.js. Use chromium only. Write an e2e spec that opens '/' and asserts the page header is visible, one that opens an unknown route and asserts the not-found message, and one wiring check that, from the page loaded at the frontend origin, fetches `${VITE_API_BASE_URL}/health` in the browser and asserts a 200 response with no CORS failure. Add an npm script test:e2e; do not write any feature tests.",
+      "acceptance_criteria": [
+        "playwright.config declares two webServer entries, one for the backend health URL and one for the frontend URL",
+        "npm run test:e2e starts both servers automatically and the shell spec passes",
+        "The e2e spec navigates to / and asserts the page header is visible",
+        "The e2e spec navigates to an unknown route and asserts the not-found message is visible",
+        "A wiring e2e spec performs a browser-side fetch from the frontend origin to `${VITE_API_BASE_URL}/health` and asserts HTTP 200 with a {\"status\": \"ok\"} body, proving the frontend base URL, the /api prefix and CORS agree",
+        "The backend webServer sets FRONTEND_ORIGIN to the frontend dev URL, and no wildcard origin is used",
+        "The frontend webServer sets VITE_API_BASE_URL to a value ending in /api",
+        "package.json has a test:e2e script and Playwright browsers install via npx playwright install --with-deps chromium"
+      ]
+    },
+    {
+      "name": "Lint & Format Baseline",
+      "tool": "ruff / ESLint / Prettier",
+      "priority": "P0",
+      "skill_id": "SKILL_007",
+      "testcases": [],
+      "capability": "Configures ruff for the Python backend and ESLint plus Prettier for the frontend with runnable lint and format scripts that pass on the existing code.",
+      "dependencies": [
+        "SKILL_002",
+        "SKILL_005"
+      ],
+      "prompt_template": "Add backend/ruff.toml or a pyproject [tool.ruff] section (line length 100, rules E, F, I, B, target py311) and make the existing backend code pass ruff check and ruff format --check. In /frontend add an ESLint flat config with react, react-hooks and jsx-a11y plugins, a .prettierrc, .prettierignore, and npm scripts lint, format and format:check. Fix any violations in code created by earlier skills without changing behavior, and keep the configs minimal.",
+      "acceptance_criteria": [
+        "cd backend && ruff check . exits 0",
+        "cd backend && ruff format --check . exits 0",
+        "cd frontend && npm run lint exits 0 with the react-hooks rules enabled",
+        "cd frontend && npm run format:check exits 0",
+        "Introducing an unused import in a backend file makes ruff check exit non-zero",
+        "ESLint config enables eslint-plugin-react-hooks rules-of-hooks"
+      ]
+    },
+    {
+      "name": "ADLC Config & Dev Scripts",
+      "tool": "npm scripts / shell / .adlc.json",
+      "priority": "P0",
+      "skill_id": "SKILL_008",
+      "testcases": [],
+      "capability": "Creates the canonical .adlc.json (the single owner of this file), .env.example with the agreed VITE_API_BASE_URL contract, and single-command dev scripts to start the backend and frontend.",
+      "dependencies": [
+        "SKILL_002",
+        "SKILL_003",
+        "SKILL_005",
+        "SKILL_006"
+      ],
+      "prompt_template": "Create a root .adlc.json containing test_command entries (backend: 'cd backend && pytest', frontend: 'cd frontend && npm test', optional e2e: 'cd frontend && npm run test:e2e'), tech_stack (Python 3.11+, FastAPI, Pydantic v2, React 18, Vite, Vitest, Playwright, ruff, ESLint, Prettier), and required env vars/services (FRONTEND_ORIGIN, VITE_API_BASE_URL, SQLITE_PATH). This is the only epic that creates .adlc.json; later epics may only add new entries to it (for example extra test_command keys) and must not recreate or overwrite it. Add a .env.example documenting these variables with non-secret placeholder values; VITE_API_BASE_URL must be http://localhost:8000/api (including the /api prefix, matching frontend/src/config.js) and FRONTEND_ORIGIN must be the Vite dev URL. Add a root README section and scripts (e.g. a Makefile or root package.json) offering exactly one command to start the backend (uvicorn with reload on port 8000) and one to start the frontend (vite dev). Document the base-URL contract in the README: the frontend calls `${VITE_API_BASE_URL}/<resource>`, which resolves to /api/<resource> on the backend. Do not commit any real .env.",
+      "acceptance_criteria": [
+        ".adlc.json is valid JSON and contains the keys test_command, tech_stack and env vars including FRONTEND_ORIGIN, VITE_API_BASE_URL and SQLITE_PATH",
+        "Each test_command entry in .adlc.json runs successfully when executed from the repo root",
+        ".env.example lists FRONTEND_ORIGIN, VITE_API_BASE_URL and SQLITE_PATH with placeholder values and no secrets",
+        ".env.example sets VITE_API_BASE_URL to a URL ending in /api and does not define VITE_API_URL",
+        "Running the single backend start command serves GET http://localhost:8000/api/health with 200",
+        "Running the single frontend start command serves the app shell at the Vite dev URL, and the page loads in a browser",
+        "With both start commands running and .env.example values applied, a request to `${VITE_API_BASE_URL}/health` from the frontend origin succeeds",
+        "No .env file is tracked and the README documents both start commands and the VITE_API_BASE_URL contract"
+      ]
+    },
+    {
+      "name": "CI Workflow for Lint & Tests",
+      "tool": "GitHub Actions",
+      "priority": "P0",
+      "skill_id": "SKILL_009",
+      "testcases": [],
+      "capability": "Creates the canonical GitHub Actions workflow (the single owner of .github/workflows/ci.yml) that installs dependencies and runs lint, format checks, backend tests, frontend tests, and the frontend build on every push and pull request. Playwright E2E execution and its gating are deliberately excluded and are owned solely by the [QA] epic's separate quality-gates workflow, so the E2E suite runs in CI exactly once.",
+      "dependencies": [
+        "SKILL_007",
+        "SKILL_008"
+      ],
+      "prompt_template": "Create .github/workflows/ci.yml triggered on push and pull_request with jobs for backend (setup-python 3.11, pip cache, pip install -r backend/requirements.txt, ruff check, ruff format --check, pytest) and frontend (setup-node, npm ci, npm run lint, npm run format:check, npm test, npm run build). Do NOT add any Playwright or e2e job or step (no npm run test:e2e, no playwright install) to ci.yml: CI execution and gating of the Playwright E2E suite (and Lighthouse) belongs to the [QA] epic's separate workflow file, and running it here as well would execute and gate E2E twice. Use only non-secret env values defined inline (for example any values mirrored from .env.example, with VITE_API_BASE_URL including the /api prefix if the frontend job needs it), cache dependencies, and fail the workflow on any step failure. This is the only epic that creates ci.yml; later epics must not recreate or overwrite it and must not re-add E2E to it, and may extend it only with non-E2E steps or jobs.",
+      "acceptance_criteria": [
+        ".github/workflows/ci.yml is valid YAML and triggers on push and pull_request",
+        "The workflow runs ruff check, ruff format --check, pytest, npm run lint, npm run format:check, npm test and npm run build as separate steps",
+        "The workflow uses Python 3.11 and a Node LTS version",
+        "ci.yml contains no Playwright/e2e job or step (no 'npm run test:e2e' and no 'playwright install'), so the E2E suite is executed in CI only by the [QA] epic's quality-gates workflow",
+        "All commands in the workflow succeed when run locally from a clean checkout",
+        "The workflow references no secrets.* values",
+        "Breaking the health smoke test or the frontend smoke test causes the corresponding CI job to fail"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-5",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 9,
+    "p0_count": 8,
+    "p1_count": 1,
+    "p2_count": 0
+  }
+}
