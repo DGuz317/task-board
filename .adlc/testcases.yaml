@@ -1,0 +1,5 @@
+# .adlc/testcases.yaml — DRAFT generated at Skills phase (ADLC Hub — Step 3)
+# Code does not exist yet: module/export are predicted. REVIEW before merge.
+# Each case is tagged with the skill_id/epic_key it belongs to.
+version: 1
+cases:
