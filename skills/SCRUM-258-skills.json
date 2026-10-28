@@ -1,0 +1,189 @@
+{
+  "skills": [
+    {
+      "name": "Accessible Kebab Menu Component",
+      "tool": "React 18 + plain CSS (hooks only)",
+      "priority": "P0",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Builds a reusable TaskActionsMenu React component with a kebab button and a popover menu containing 'Edit' and 'Delete' items, including full keyboard and focus behavior.",
+      "dependencies": [],
+      "prompt_template": "You are implementing a reusable TaskActionsMenu component in the existing React 18 + Vite frontend using hooks only and plain CSS that uses the global design tokens. Render a kebab button with aria-label='Task actions', aria-haspopup='menu' and aria-expanded reflecting state, meeting the 44px touch target and the global visible focus ring. The popover uses role='menu' with exactly two role='menuitem' entries, 'Edit' and 'Delete'; style it with a light box-shadow, rounded corners, 36px-high items, hover/focus background #F3F4F6, and the Delete label in #DC2626, with consistent padding from the existing spacing scale. Implement keyboard operation: Enter/Space opens and focuses the first item, ArrowUp/ArrowDown move with wrap, Enter/Space selects, Esc and Tab close, and focus returns to the button on close. Close on outside click. Expose onEdit and onDelete callbacks and do not call the API in this component.",
+      "acceptance_criteria": [
+        "Rendered TaskActionsMenu has a button with aria-label 'Task actions', aria-haspopup 'menu' and aria-expanded 'false' initially",
+        "Clicking the button sets aria-expanded to 'true' and shows a role='menu' containing exactly two role='menuitem' elements labeled 'Edit' and 'Delete'",
+        "Pressing Enter or Space on the focused button opens the menu and moves focus to the first item",
+        "ArrowDown/ArrowUp move focus between 'Edit' and 'Delete' with wrap-around",
+        "Pressing Enter on a focused item calls onEdit or onDelete respectively and closes the menu",
+        "Pressing Esc closes the menu and focus returns to the kebab button",
+        "Mousedown outside the menu closes it and sets aria-expanded back to 'false'",
+        "Menu items have a computed height of 36px, the Delete item uses color #DC2626, and item hover background is #F3F4F6 in the stylesheet",
+        "Menu popover uses spacing and shadow styling consistent with the app's design tokens (no hard-coded values conflicting with the global stylesheet)"
+      ]
+    },
+    {
+      "name": "Single Open Menu Coordination",
+      "tool": "React 18 (TaskRow, TaskList)",
+      "priority": "P0",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Mounts the actions menu into each TaskRow's right-edge slot and ensures only one menu is open at a time across the list.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "You are integrating the existing TaskActionsMenu into the existing TaskRow and TaskList components of the React 18 frontend, using hooks only and plain CSS. Place the kebab button in the reserved right-edge slot of each TaskRow, vertically centered, without breaking the card's existing padding, rounded corners, flat styling or responsive layout on narrow screens (keep the 44px touch target). Lift the 'open menu id' state to TaskList (or a small context) so opening one row's menu closes any other, and pass down onEdit(task)/onDelete(task) handlers that later skills will implement. Do not change list order or fetching logic.",
+      "acceptance_criteria": [
+        "Opening the app at the main route shows a 'Task actions' button at the right edge of every task row",
+        "With three tasks rendered, clicking the kebab on row 1 then the kebab on row 2 leaves exactly one role='menu' in the document and row 1's aria-expanded is 'false'",
+        "In the running app, clicking anywhere outside an open menu closes it",
+        "Task row title/description layout is unchanged and the kebab does not overlap long titles (title text wraps or truncates within the card)",
+        "Existing TaskList tests for ordering and empty state still pass"
+      ]
+    },
+    {
+      "name": "Edit Task Modal Container",
+      "tool": "React 18 + Typed Task API Client (updateTask) + shared Modal/TaskForm",
+      "priority": "P0",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Creates an EditTaskModal that reuses Modal and TaskForm, pre-filled with the task's values, and saves via PUT /tasks/{id}.",
+      "dependencies": [],
+      "prompt_template": "You are building EditTaskModal in the React 18 frontend by composing the existing shared Modal and TaskForm components (do not duplicate them) and the existing typed updateTask client for PUT /tasks/{id}. Pre-fill the form with the task's current title and description, apply the same trimming and 1-100 / 0-500 validation as Create, send no request on invalid input, and show the inline 'Title is required' error. On a 200 response call onSaved(updatedTask) and close; on Cancel or Esc close without a request. Handle a 404 gracefully: show an inline, aria-live error message such as 'This task no longer exists' and notify the parent via onNotFound(id) so it can drop the row, rather than throwing. Keep the modal styling consistent with the Create modal (same scrim, padding, rounded corners and design tokens), and disable the submit button while saving to avoid duplicate submits.",
+      "acceptance_criteria": [
+        "EditTaskModal renders the Title and Description inputs populated with the given task's values",
+        "Submitting with a whitespace-only title shows 'Title is required' and makes no fetch call",
+        "Submitting valid changes calls PUT /tasks/{id} once with the trimmed title and description and then calls onSaved with the returned task",
+        "A 404 response shows a user-visible error message, calls onNotFound with the task id, and does not throw",
+        "Pressing Esc or clicking Cancel closes the modal without calling PUT",
+        "EditTaskModal uses the shared Modal and TaskForm components (imports from the Create flow modules, no copied form markup)"
+      ]
+    },
+    {
+      "name": "Wire Edit Action In Place",
+      "tool": "React 18 (TaskList state)",
+      "priority": "P0",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Connects the menu's Edit item to open EditTaskModal and updates the edited row in place without changing list position.",
+      "dependencies": [
+        "SKILL_002",
+        "SKILL_003"
+      ],
+      "prompt_template": "You are wiring the Edit flow into the existing TaskList in the React 18 frontend using hooks only. When the menu's Edit item is chosen, close the menu, open EditTaskModal for that task, and keep track of which task is being edited. On onSaved, replace that task in the list state by id at the same index (never re-sort or re-append); on onNotFound, remove that task from state and close the modal. Ensure focus returns to the originating kebab button (or a sensible fallback if the row was removed) when the modal closes. Do not alter the Create flow's append behavior.",
+      "acceptance_criteria": [
+        "In the running app, choosing Edit on a task opens a modal pre-filled with that task's title and description",
+        "After saving a changed title on the middle task of A, B, C the list still renders in order A, B', C with the new title shown without a page reload",
+        "Cancelling or pressing Esc in the edit modal leaves the row text unchanged",
+        "After a mocked 404 on save, the row for that task is removed from the list and the modal closes without an unhandled error",
+        "After the edit modal closes, focus returns to the kebab button of the edited row"
+      ]
+    },
+    {
+      "name": "Delete Confirmation Dialog",
+      "tool": "React 18 + Typed Task API Client (deleteTask) + shared Modal",
+      "priority": "P1",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Creates an accessible DeleteConfirmDialog with Cancel and Delete buttons that calls DELETE /tasks/{id} only on confirm.",
+      "dependencies": [],
+      "prompt_template": "You are building DeleteConfirmDialog in the React 18 frontend on top of the existing accessible Modal (reuse its scrim, focus trap, Esc handling and focus return) with plain CSS using the global design tokens. Show a short message naming the task title and two buttons: 'Cancel' (neutral, receives initial focus so accidental Enter does not delete) and 'Delete' (destructive, #DC2626 background with white text, 44px touch target, visible focus ring). Only when 'Delete' is clicked call the existing deleteTask client (DELETE /tasks/{id}, expecting 204), disable buttons while pending, then call onDeleted(id). Treat a 404 as already deleted (call onDeleted) and show an inline aria-live error for other failures while keeping the dialog open. Cancel and Esc must close without any request. Use role='alertdialog' or role='dialog' with aria-labelledby and aria-describedby.",
+      "acceptance_criteria": [
+        "DeleteConfirmDialog renders buttons labeled 'Cancel' and 'Delete' and the task title in its message",
+        "No fetch call is made until 'Delete' is clicked; clicking it issues DELETE /tasks/{id} exactly once and then calls onDeleted with the id",
+        "Clicking 'Cancel' or pressing Esc closes the dialog, makes no request, and does not call onDeleted",
+        "A 404 response from DELETE results in onDeleted being called and no unhandled error",
+        "A 500 response keeps the dialog open and shows an error message with role='alert' or aria-live",
+        "The 'Delete' button has background #DC2626 in the stylesheet and Cancel has initial focus when the dialog opens"
+      ]
+    },
+    {
+      "name": "Wire Delete Action In List",
+      "tool": "React 18 (TaskList state)",
+      "priority": "P1",
+      "skill_id": "SKILL_006",
+      "testcases": [],
+      "capability": "Connects the menu's Delete item to the confirmation dialog and removes the confirmed task from the list while preserving the order of remaining tasks.",
+      "dependencies": [
+        "SKILL_002",
+        "SKILL_005"
+      ],
+      "prompt_template": "You are wiring the Delete flow into the existing TaskList in the React 18 frontend using hooks only. When the menu's Delete item is chosen, close the menu and open DeleteConfirmDialog for that task. On onDeleted(id), filter the task out of list state without re-sorting so remaining tasks keep their relative order, and show the existing empty-state text 'No tasks yet. Click Create to add one.' when the last task is removed. After the dialog closes, move focus to a sensible target (the next row's kebab, previous row's kebab, or the Create button when the list is empty). Nothing is removed from state unless the dialog confirms.",
+      "acceptance_criteria": [
+        "In the running app, choosing Delete on a task opens a confirmation dialog and the row remains visible behind it",
+        "Clicking Cancel or pressing Esc leaves the task in the list and issues no DELETE request",
+        "Confirming deletion of B from A, B, C results in the list rendering A then C without a page reload",
+        "Deleting the only remaining task shows the text 'No tasks yet. Click Create to add one.'",
+        "After a confirmed delete, reloading the page (list refetched from the API) does not show the deleted task"
+      ]
+    },
+    {
+      "name": "Menu Behavior Vitest Suite",
+      "tool": "Vitest + React Testing Library + user-event",
+      "priority": "P0",
+      "skill_id": "SKILL_007",
+      "testcases": [],
+      "capability": "Adds Vitest and RTL tests for the actions menu's ARIA attributes, open/close behavior, single-open rule, and keyboard navigation.",
+      "dependencies": [
+        "SKILL_002"
+      ],
+      "prompt_template": "You are writing Vitest and React Testing Library tests for the TaskActionsMenu and its integration in TaskList, using @testing-library/user-event and a mocked fetch. Query by role and accessible name (button 'Task actions', menu, menuitem) rather than by CSS class. Cover ARIA state, click and outside-click toggling, Esc closing with focus return, Enter/Space opening, ArrowUp/ArrowDown navigation with wrap, Enter selecting, and the rule that only one menu is open across multiple rows. Keep tests deterministic with no real timers or network, and follow the existing test file layout and naming.",
+      "acceptance_criteria": [
+        "npm test runs the new menu test file and all its tests pass",
+        "A test asserts aria-label, aria-haspopup and aria-expanded transitions between false and true",
+        "A test asserts Esc closes the menu and document.activeElement is the kebab button",
+        "A test asserts ArrowDown/ArrowUp change focus between Edit and Delete and that Enter triggers the matching callback",
+        "A test renders three rows, opens menus on two of them in sequence, and asserts exactly one menu is present",
+        "A test asserts an outside click closes the open menu"
+      ]
+    },
+    {
+      "name": "Edit Flow Vitest Suite",
+      "tool": "Vitest + React Testing Library + mocked fetch",
+      "priority": "P0",
+      "skill_id": "SKILL_008",
+      "testcases": [],
+      "capability": "Adds Vitest and RTL tests covering the edit flow end to end through the list: prefill, validation, in-place update, cancel, and 404 handling.",
+      "dependencies": [
+        "SKILL_004"
+      ],
+      "prompt_template": "You are writing Vitest and React Testing Library tests for the Edit flow using the real TaskList, TaskActionsMenu, and EditTaskModal with a mocked fetch that handles GET /tasks and PUT /tasks/{id}. Drive the UI via user-event: open the kebab, choose Edit, assert prefilled values, change fields, and save. Verify the request method, URL, and JSON body, that the row updates in place at the same index, and the validation, cancel, and 404 paths. Avoid snapshot tests and follow the existing test conventions.",
+      "acceptance_criteria": [
+        "npm test passes with the new edit flow test file included",
+        "A test asserts the edit modal inputs are pre-filled with the selected task's title and description",
+        "A test with tasks A, B, C edits B and asserts the rendered order is A, B', C and exactly one PUT /tasks/{id} was sent with trimmed values",
+        "A test asserts a whitespace-only title shows 'Title is required' and no PUT request is made",
+        "A test asserts Cancel/Esc leaves the row unchanged with no PUT request",
+        "A test mocking a 404 on PUT asserts an error message is shown and the row is removed without an uncaught error"
+      ]
+    },
+    {
+      "name": "Delete Flow Vitest Suite",
+      "tool": "Vitest + React Testing Library + mocked fetch",
+      "priority": "P1",
+      "skill_id": "SKILL_009",
+      "testcases": [],
+      "capability": "Adds Vitest and RTL tests covering delete confirm, cancel, Esc, error, and order preservation through the list.",
+      "dependencies": [
+        "SKILL_006"
+      ],
+      "prompt_template": "You are writing Vitest and React Testing Library tests for the Delete flow using the real TaskList, TaskActionsMenu, and DeleteConfirmDialog with a mocked fetch that handles GET /tasks and DELETE /tasks/{id} (204, 404, 500). Drive the UI via user-event: open the kebab, choose Delete, and interact with the dialog by role and accessible name. Assert that no DELETE request is sent until confirm, that Cancel and Esc leave the task intact, that remaining tasks keep relative order after confirm, and that a refetch from a mocked server no longer includes the deleted task. Follow the existing test conventions with no snapshots.",
+      "acceptance_criteria": [
+        "npm test passes with the new delete flow test file included",
+        "A test asserts choosing Delete shows a dialog with 'Cancel' and 'Delete' buttons and that fetch was not called with DELETE yet",
+        "A test asserts clicking Cancel and, separately, pressing Esc keep the task in the list with zero DELETE calls",
+        "A test with tasks A, B, C confirms deletion of B, asserts one DELETE /tasks/{id} call, and that the list renders A then C",
+        "A test asserts deleting the last task shows 'No tasks yet. Click Create to add one.'",
+        "A test mocking a 500 on DELETE asserts the dialog stays open with an error message and the task remains"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-258",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 9,
+    "p0_count": 6,
+    "p1_count": 3,
+    "p2_count": 0
+  }
+}
