@@ -1,0 +1,132 @@
+{
+  "skills": [
+    {
+      "name": "Add completed field to backend",
+      "tool": "FastAPI / Pydantic / pytest",
+      "priority": "P2",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Extends the Task Pydantic schemas, in-memory repository, and PUT /tasks/{id} contract with an optional 'completed' boolean defaulting to false.",
+      "dependencies": [],
+      "prompt_template": "You are a backend engineer extending the existing FastAPI Task Board. Add an optional 'completed: bool = False' field to the existing Task, TaskCreate (optional) and TaskUpdate (optional) Pydantic models and make the existing in-memory repository persist and return it, without breaking existing validation, ordering, or ID rules. PUT /tasks/{id} must accept a partial update that only sets 'completed' without requiring title, and POST /tasks must still work with no 'completed' provided. Reuse the existing repository and route handlers; do not reimplement them. Update existing schema, repository and endpoint contract tests.",
+      "acceptance_criteria": [
+        "POST /tasks with only a title returns 201 with 'completed' equal to false",
+        "PUT /tasks/{id} with body {\"completed\": true} returns 200 and the task has completed true with title and description unchanged",
+        "GET /tasks after toggling completed returns the persisted value and the same list order",
+        "PUT /tasks/{id} with {\"completed\": \"notabool-string\"} returns 422",
+        "PUT /tasks/{unknown_id} with {\"completed\": true} returns 404",
+        "All existing backend pytest tests still pass and new tests cover the completed field in schemas, repository and endpoints"
+      ]
+    },
+    {
+      "name": "Task completion checkbox UI",
+      "tool": "React / Vitest / React Testing Library",
+      "priority": "P2",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Adds an accessible, labeled checkbox to each TaskRow that toggles completion and renders the title with strikethrough when checked.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "You are a frontend engineer extending the existing React Task Board. Extend the typed Task shape and updateTask API client with the optional 'completed' boolean, and add a native checkbox to TaskRow that calls updateTask with {completed} and updates the row in place without changing list position. Style with the existing plain CSS design tokens: checkbox on the left of the flat card with a 44px touch target, consistent card padding, the visible focus ring, and a muted color plus line-through on the title (and description) when completed; keep the layout responsive on narrow screens and do not clip the right-edge 3-dot menu. The checkbox must be keyboard operable (Space) and have an accessible label such as 'Mark \"<title>\" as complete'. Update the existing TaskRow/TaskList Vitest tests.",
+      "acceptance_criteria": [
+        "Each rendered TaskRow contains an input[type=checkbox] with an accessible name that includes the task title, found via getByRole('checkbox', {name: /title/})",
+        "A task with completed true renders checked with the title having text-decoration line-through; completed false renders unchecked with no line-through",
+        "Clicking the checkbox calls PUT /tasks/{id} with {completed: true} and the row stays in the same list position",
+        "Pressing Space on a focused checkbox toggles it",
+        "Opening the running app with at least one task shows a checkbox on each row, and checking it strikes through the title and remains struck through after a page refresh",
+        "Checkbox and card spacing use existing design tokens and the checkbox hit area is at least 44x44px",
+        "Existing TaskRow and TaskList tests still pass"
+      ]
+    },
+    {
+      "name": "Double-click title to edit",
+      "tool": "React / Vitest / React Testing Library",
+      "priority": "P2",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Opens the existing Edit form when a user double-clicks a task title, while keeping the menu Edit action as the accessible path.",
+      "dependencies": [],
+      "prompt_template": "You are a frontend engineer extending the existing React Task Board. Add an onDoubleClick handler on the TaskRow title that invokes the same open-edit handler already used by the 3-dot menu's Edit item, reusing EditTaskModal; do not create a second edit flow. Keep the title a non-interactive text element visually unchanged (no new colors or layout shifts, optionally cursor hint consistent with the existing style) and leave the menu Edit as the keyboard path with no new tab stops. Double-clicking the checkbox or menu must not open the form. Add Vitest tests.",
+      "acceptance_criteria": [
+        "Double-clicking a task title opens the Edit modal pre-filled with that task's title and description",
+        "Single-clicking the title does not open the Edit modal",
+        "Double-clicking the checkbox or 3-dot button does not open the Edit modal",
+        "Saving from a double-click-opened form updates the row in place at the same list position",
+        "In the running app, double-clicking a task title shows the Edit dialog, and Esc closes it without changes",
+        "Choosing Edit from the 3-dot menu via keyboard still opens the same modal"
+      ]
+    },
+    {
+      "name": "Optimistic task state hook",
+      "tool": "React hooks / Vitest",
+      "priority": "P2",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Provides a shared hook/reducer that applies create, edit, delete and complete changes to the list immediately and rolls back on API failure with the standard error message.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "You are a frontend engineer extending the existing React Task Board. Build a hooks-only module (e.g. useTasks) that owns the task list state and exposes createTask, editTask, deleteTask, toggleComplete. Each action updates local state immediately (create uses a temporary client id replaced by the server task on success, preserving bottom-of-list order), calls the existing typed API client, and on failure restores the exact prior snapshot and surfaces the existing standard error message used by the Loading/Error States epic; reuse its error text and presentation instead of inventing new strings. Handle overlapping requests safely so a rollback of one action does not clobber another. Add Vitest unit tests with mocked API client.",
+      "acceptance_criteria": [
+        "After calling deleteTask, the task is absent from hook state before the mocked API promise resolves",
+        "When the mocked updateTask rejects, the list state equals the exact pre-action snapshot (same order and values) and the standard error message is exposed",
+        "createTask shows the new task at the end of the list immediately with a temporary id, then replaces it with the server task (real id, created_at) on success without duplicating it",
+        "A failed createTask removes the temporary task from the list",
+        "toggleComplete flips completed immediately and reverts on API rejection",
+        "Two overlapping actions where only one fails roll back only the failed change"
+      ]
+    },
+    {
+      "name": "Wire optimistic updates into UI",
+      "tool": "React / Vitest / React Testing Library",
+      "priority": "P2",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Replaces direct per-component API calls in create, edit, delete and complete flows with the optimistic hook so the running UI updates instantly and shows the standard error on rollback.",
+      "dependencies": [
+        "SKILL_002",
+        "SKILL_003",
+        "SKILL_004"
+      ],
+      "prompt_template": "You are a frontend engineer extending the existing React Task Board. Connect TaskList, CreateTaskModal, EditTaskModal, DeleteConfirmDialog and the completion checkbox to the shared optimistic task hook so modals close and rows change immediately rather than after the response. On failure, show the existing standard error message in the existing error-notice style (same spacing, color tokens, and aria-live behavior as the app's current error UI), and the list returns to its prior state. Do not change modal/form visuals beyond this and keep everything keyboard accessible with focus returning as before. Update affected Vitest tests.",
+      "acceptance_criteria": [
+        "In the running app, confirming Delete removes the row immediately even when the DELETE response is delayed",
+        "Creating a task closes the modal and shows the new row at the bottom before the POST resolves",
+        "Editing a task updates the row text immediately in place before the PUT resolves",
+        "When the server returns an error for any of create, edit, delete or complete, the list reverts to its prior state and the standard error message is visible and announced via an aria-live region",
+        "Focus returns to a sensible element after modals close as before",
+        "Existing Vitest tests for create, edit, delete and list pass or are updated to match optimistic behavior"
+      ]
+    },
+    {
+      "name": "Update Playwright E2E tests",
+      "tool": "Playwright / axe-core",
+      "priority": "P2",
+      "skill_id": "SKILL_006",
+      "testcases": [],
+      "capability": "Adds and updates Playwright E2E tests covering mark-complete, double-click edit, and optimistic update with rollback.",
+      "dependencies": [
+        "SKILL_005"
+      ],
+      "prompt_template": "You are a QA automation engineer extending the existing Playwright suite for the Task Board. Add e2e tests for: toggling a task's checkbox with strikethrough that persists after reload, double-click on a title opening the Edit dialog, and optimistic create/edit/delete/complete using page.route to delay or fail API calls to verify immediate UI change and rollback with the standard error message. Update any existing e2e specs broken by optimistic behavior, and re-run axe-core on the list with checkboxes to confirm no critical/serious violations. Reuse existing fixtures and test helpers.",
+      "acceptance_criteria": [
+        "An e2e test checks a task checkbox, asserts the title has line-through computed style, reloads, and asserts it is still checked and struck through",
+        "An e2e test double-clicks a task title and asserts the Edit dialog is visible with the pre-filled title",
+        "An e2e test delays DELETE via page.route and asserts the row disappears before the response is fulfilled",
+        "An e2e test forces a 500 on PUT /tasks/{id} and asserts the row reverts and the standard error message is visible",
+        "An axe-core scan of the page with tasks reports 0 critical/serious violations",
+        "npx playwright test passes with all pre-existing specs green"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-261",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 6,
+    "p0_count": 0,
+    "p1_count": 0,
+    "p2_count": 6
+  }
+}
