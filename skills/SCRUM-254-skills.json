@@ -1,0 +1,116 @@
+{
+  "skills": [
+    {
+      "name": "Task Pydantic Schemas",
+      "tool": "Pydantic v2 (FastAPI backend)",
+      "priority": "P0",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Defines the Task, TaskCreate and TaskUpdate Pydantic models with server-generated id/created_at and shared title/description validation rules.",
+      "dependencies": [],
+      "prompt_template": "You are implementing the shared task schemas in the FastAPI backend, following the existing backend package layout and code style. Create Pydantic models Task (id: UUID string, title, description default '', created_at: ISO 8601 UTC timezone-aware datetime), TaskCreate and TaskUpdate. Title is required, whitespace-trimmed before length checks, 1-100 chars, and empty or whitespace-only titles are rejected; description is 0-500 chars with default ''. Use one shared validation approach so Create and Update cannot drift, and do not accept client-supplied id or created_at on input models.",
+      "acceptance_criteria": [
+        "TaskCreate(title='  Buy milk  ').title == 'Buy milk'",
+        "TaskCreate(title='a') and TaskCreate(title='a'*100) validate successfully; TaskCreate(title='a'*101) raises ValidationError",
+        "TaskCreate(title='') and TaskCreate(title='   ') raise ValidationError",
+        "TaskCreate(title='x', description='') and description of 500 chars validate; description of 501 chars raises ValidationError",
+        "TaskCreate(title='x').description == ''",
+        "TaskUpdate applies the identical title and description boundaries (title 1/100/101, description 0/500/501, whitespace-only title rejected)",
+        "Task.model_dump(mode='json')['created_at'] is an ISO 8601 string ending in 'Z' or '+00:00'",
+        "TaskCreate ignores or rejects client-supplied 'id' and 'created_at' so they cannot be set from input"
+      ]
+    },
+    {
+      "name": "In-Memory Task Repository",
+      "tool": "Python stdlib (threading.Lock, uuid) behind a repository module",
+      "priority": "P0",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Provides a thread-safe in-memory repository with list/get/create/update/delete that preserves insertion order, never reuses IDs, and raises a domain error for unknown ids.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "You are implementing the in-memory persistence layer as a small repository module in the FastAPI backend, matching the existing code style. Back it with an insertion-ordered dict guarded by a threading lock, with methods list, get, create(TaskCreate), update(id, TaskUpdate) and delete(id). Generate server-side uuid4 string IDs and created_at UTC timestamps; update must modify in place without changing position, and delete must preserve the relative order of the remaining tasks. Unknown ids must raise a dedicated domain error (e.g. TaskNotFoundError) defined in the repository/domain module so route handlers need no storage knowledge; use no database driver, ORM, or file storage, and keep the interface simple enough that storage can be swapped later.",
+      "acceptance_criteria": [
+        "repo.create(TaskCreate(title='A')) returns a Task with a non-empty UUID string id and a UTC created_at",
+        "repo.list() returns tasks in creation order (oldest first) after creating A, B, C",
+        "repo.update(id_of_B, TaskUpdate(title='B2')) returns the updated Task and repo.list() still orders A, B2, C",
+        "repo.delete(id_of_B) leaves repo.list() as A, C in the same relative order",
+        "After creating then deleting a task, the next created task has an id different from every previously issued id",
+        "1000 created tasks have 1000 distinct ids",
+        "repo.get, repo.update and repo.delete with an unknown id raise TaskNotFoundError",
+        "Repository module imports no database driver, ORM, or file I/O (verified by inspecting imports/pyproject dependencies)",
+        "Concurrent creation from multiple threads (e.g. 8 threads x 100 creates) yields 800 unique tasks with no exceptions"
+      ]
+    },
+    {
+      "name": "Repository Dependency Provider",
+      "tool": "FastAPI dependency injection",
+      "priority": "P1",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Exposes a single shared repository instance through a FastAPI dependency function so route handlers can obtain storage without knowing its implementation and tests can override or reset it.",
+      "dependencies": [
+        "SKILL_002"
+      ],
+      "prompt_template": "You are adding a thin provider for the task repository in the FastAPI backend, following the existing module layout. Expose a get_task_repository() dependency returning a process-wide singleton in-memory repository, and provide a way for tests to reset or override it (e.g. via app.dependency_overrides or a reset helper). Do not add routes in this skill; only make the repository consumable by later endpoint epics, and document the swap point with a brief docstring.",
+      "acceptance_criteria": [
+        "Calling get_task_repository() twice returns the same instance",
+        "A task created via one call to get_task_repository() is visible via a later call",
+        "Overriding get_task_repository via app.dependency_overrides makes a FastAPI test route receive the replacement repository",
+        "A reset helper (or fresh override) yields an empty repo.list() for test isolation",
+        "Importing the provider module does not alter the existing /api health endpoint behavior (health test still passes)"
+      ]
+    },
+    {
+      "name": "Schema Validation Boundary Tests",
+      "tool": "pytest",
+      "priority": "P0",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Adds pytest unit tests covering Task/TaskCreate/TaskUpdate validation boundaries and server-generated fields.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "You are writing pytest unit tests for the task Pydantic schemas in the existing backend test directory, matching existing test naming and fixture style. Use parametrized tests to cover exact boundaries for both TaskCreate and TaskUpdate: title lengths 0/1/100/101, whitespace-only titles, leading/trailing whitespace trimming, description lengths 0/500/501, and default description. Tests must be deterministic and fast, with no network or filesystem use.",
+      "acceptance_criteria": [
+        "pytest backend tests pass with a test module covering title lengths 1, 100 (valid) and 101 (invalid) for both TaskCreate and TaskUpdate",
+        "Tests assert description lengths 0 and 500 are valid and 501 is invalid for both input models",
+        "Tests assert whitespace-only titles ('   ', '\\t\\n') are rejected and padded titles are trimmed",
+        "Tests assert a title of 100 chars plus surrounding spaces is valid because trimming happens before the length check",
+        "Test file runs in under 2 seconds and requires no external services"
+      ]
+    },
+    {
+      "name": "Repository Behavior Unit Tests",
+      "tool": "pytest",
+      "priority": "P0",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Adds pytest unit tests verifying repository ordering, ID uniqueness after delete, in-place update, order-preserving delete, unknown-id errors, and 500+ task scale.",
+      "dependencies": [
+        "SKILL_002"
+      ],
+      "prompt_template": "You are writing pytest unit tests for the in-memory task repository in the existing backend test directory, matching existing fixture and naming conventions. Use a fresh repository per test via a fixture. Cover creation-order listing, ID uniqueness including after deletes, update-in-place preserving position, delete preserving relative order of survivors, TaskNotFoundError for unknown ids on get/update/delete, and a scale test creating 500+ tasks that checks correctness and a generous time bound to detect degradation without flakiness.",
+      "acceptance_criteria": [
+        "Test asserts list() returns ids in creation order after creating 5 tasks",
+        "Test asserts an id deleted earlier never reappears among ids of tasks created afterward",
+        "Test asserts updating the middle task keeps its index in list() and changes only title/description, not id or created_at",
+        "Test asserts deleting the first, middle and last task each leaves remaining tasks in original relative order",
+        "Test asserts get/update/delete with an unknown id raise TaskNotFoundError",
+        "Test creates 600 tasks and asserts 600 unique ids, correct order, and total runtime under a generous bound (e.g. 2 seconds)",
+        "Test runs concurrent creates across threads and asserts no lost or duplicate tasks",
+        "Full backend pytest suite passes and ruff check reports no errors on the new tests"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-254",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 5,
+    "p0_count": 4,
+    "p1_count": 1,
+    "p2_count": 0
+  }
+}
