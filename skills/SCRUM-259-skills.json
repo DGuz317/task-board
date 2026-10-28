@@ -1,0 +1,175 @@
+{
+  "skills": [
+    {
+      "name": "Initial Load Spinner Indicator",
+      "tool": "React 18 + plain CSS (TaskList component)",
+      "priority": "P1",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Replaces the ad-hoc loading text already rendered by the existing TaskList initial-load state with a reusable, accessible spinner indicator. This is a presentation-only swap that adds no new loading state or fetch logic.",
+      "dependencies": [],
+      "prompt_template": "You are a frontend engineer working in the existing React 18 + Vite app with plain CSS and hooks only. The TaskList component (from the View Task List epic) already tracks a loading state for the initial listTasks call and renders basic loading text. Do not add a new loading flag, effect, or fetch logic. Create a small reusable LoadingIndicator component (CSS spinner plus visible 'Loading tasks…' text, role='status' with aria-live='polite') and render it in place of the existing ad-hoc loading text, driven by the existing loading state. Style it to match the app's flat, minimal look: white page, centered within the list region, spacing taken from the existing design tokens, secondary text color for the label, a spinner using the accent token, and honor prefers-reduced-motion by disabling the spin animation. It must look fine from 320px to desktop widths.",
+      "acceptance_criteria": [
+        "While the mocked listTasks promise is unresolved, TaskList renders an element with role='status' containing the text 'Loading tasks…'",
+        "The previous ad-hoc loading text is removed, and TaskList still has a single loading state variable driven by the existing initial fetch (no duplicate loading flag or second listTasks call is introduced)",
+        "After listTasks resolves, the loading indicator is removed from the DOM and the tasks (or the 'No tasks yet. Click Create to add one.' empty text) are shown",
+        "The empty-state text is not rendered while loading is in progress",
+        "Opening the running app on the main route shows the spinner in the list region before the task list appears (verifiable by delaying GET /tasks in a test)",
+        "Spinner CSS uses design tokens for color/spacing and sets animation to none under @media (prefers-reduced-motion: reduce)"
+      ]
+    },
+    {
+      "name": "Dismissible Inline ErrorMessage Component",
+      "tool": "React 18 + plain CSS",
+      "priority": "P1",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Provides a reusable inline error banner component displaying 'Something went wrong. Please try again.' with a dismiss button and accessible announcement.",
+      "dependencies": [],
+      "prompt_template": "You are a frontend engineer building a reusable ErrorMessage component in the existing React + plain CSS app. It renders the default text 'Something went wrong. Please try again.' (overridable via prop), uses role='alert' so screen readers announce it on appearance, and includes a dismiss button with an accessible name (e.g. aria-label='Dismiss error') that calls an onDismiss callback and meets the 44px touch target and visible focus ring from the global stylesheet. Style it as a flat, unobtrusive inline banner: subtle error-tinted background and border using design tokens, consistent padding and spacing scale, readable text meeting 4.5:1 contrast, and a layout that wraps gracefully on narrow screens.",
+      "acceptance_criteria": [
+        "Rendering <ErrorMessage onDismiss={fn} /> shows the exact text 'Something went wrong. Please try again.'",
+        "The component root has role='alert'",
+        "Clicking the button named 'Dismiss error' calls onDismiss exactly once",
+        "The dismiss button is reachable via Tab and activatable with Enter and Space",
+        "Text/background color tokens used by the banner yield a contrast ratio of at least 4.5:1",
+        "Banner padding and spacing use the app's existing CSS spacing tokens rather than hard-coded one-off values"
+      ]
+    },
+    {
+      "name": "Error State Hook And List Wiring",
+      "tool": "React hooks (useTaskError / TaskList) + typed API client",
+      "priority": "P1",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Adds a shared, dismissible error-state owner and a reusable refetch function by building on the failure detection and fetch already present in TaskList. The existing initial-load failure is surfaced through the shared ErrorMessage, and the refetch is exposed for later mutation-failure skills to re-sync from the server.",
+      "dependencies": [
+        "SKILL_001",
+        "SKILL_002"
+      ],
+      "prompt_template": "You are a frontend engineer in a React 18 hooks-only app. The TaskList from the View Task List epic already fetches GET /tasks and already has basic loading and error handling for the initial load. Do not rebuild that detection or add a second fetch effect. Instead: (1) add a small hook or state owner (e.g. useErrorMessage) in the board/list container that holds a single dismissible error; (2) replace the list's existing ad-hoc error rendering with the shared ErrorMessage component placed above the list region, so an initial listTasks failure shows the banner, leaves no spinner, and does not show the 'No tasks yet' empty state as if the load had succeeded; (3) extract the existing fetch logic into one exposed refetch function (re-sync from GET /tasks) that the initial load itself also uses, and that later skills reuse after failed mutations; a successful refetch clears the error. Keep the banner placement consistent with the existing spacing scale and make sure only one banner is shown at a time.",
+      "acceptance_criteria": [
+        "When mocked listTasks rejects, the app shows the text 'Something went wrong. Please try again.' inside an element with role='alert' rendered by the shared ErrorMessage component",
+        "The previous ad-hoc list error rendering is removed, and the initial load and the exposed refetch share a single listTasks call path (no duplicate fetch effect or duplicate loading/error state in TaskList)",
+        "When listTasks rejects, the loading indicator is gone and the text 'No tasks yet. Click Create to add one.' is not rendered",
+        "Clicking 'Dismiss error' removes the banner from the DOM",
+        "Calling the exposed refetch after a rejected load with a now-successful listTasks renders the returned tasks and clears the banner",
+        "Opening the running app with the backend unreachable shows the dismissible error banner on the main route",
+        "Triggering a second error while one is displayed results in exactly one banner in the DOM"
+      ]
+    },
+    {
+      "name": "Create Failure Handling And Re-sync",
+      "tool": "CreateTaskModal + createTask API client",
+      "priority": "P1",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Handles a failed POST /tasks by showing the error banner, adding no phantom task, and re-syncing the list from the server.",
+      "dependencies": [
+        "SKILL_003"
+      ],
+      "prompt_template": "You are a frontend engineer extending the existing create flow in a React hooks-only app. When createTask rejects (network error or non-2xx), call the shared error-state mechanism to show the dismissible 'Something went wrong. Please try again.' banner, do not append anything to the list, keep the modal behavior sensible (the typed input must not be lost silently, and the modal must not report success to the parent), and trigger a refetch of GET /tasks so the UI matches server state. Do not duplicate the append-on-success logic; only add the failure path. The banner reuses the shared styled ErrorMessage so spacing and colors stay consistent.",
+      "acceptance_criteria": [
+        "With createTask mocked to reject, submitting a valid form results in the text 'Something went wrong. Please try again.' being displayed with role='alert'",
+        "After a failed create, the number of task rows equals the count returned by the mocked server list, with no row for the failed title",
+        "After a failed create, listTasks is called again to re-sync the list",
+        "A failed create does not invoke the parent's onCreated callback",
+        "A subsequent successful create still appends the new task at the bottom and clears the banner",
+        "In the running app, submitting the Create form while POST /tasks returns 500 shows the banner and the list is unchanged"
+      ]
+    },
+    {
+      "name": "Edit Failure Handling And Re-sync",
+      "tool": "EditTaskModal + updateTask API client",
+      "priority": "P1",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Handles a failed PUT /tasks/{id} by showing the error banner, reverting any in-place row change, and re-syncing from the server.",
+      "dependencies": [
+        "SKILL_003"
+      ],
+      "prompt_template": "You are a frontend engineer extending the existing in-place edit flow in a React hooks-only app. When updateTask rejects (including a 404 for a task already gone), show the shared dismissible 'Something went wrong. Please try again.' banner, ensure the row keeps its original server values and list position (no optimistic change persists), and refetch GET /tasks so the list reflects server truth, including removing a row the server no longer has. Only add the failure path and do not alter the success path. Reuse the shared ErrorMessage styling without introducing one-off CSS.",
+      "acceptance_criteria": [
+        "With updateTask mocked to reject, saving a valid edit shows 'Something went wrong. Please try again.' in a role='alert' element",
+        "After a failed edit, the row still displays its original title and description from the server",
+        "After a failed edit, listTasks is called again and the rendered rows match its result, including dropping a task the mocked server no longer returns",
+        "The edited row's position in the list is unchanged after a failed edit",
+        "A later successful edit updates the row in place and clears the banner",
+        "In the running app, saving an edit while PUT /tasks/{id} returns 404 or 500 shows the banner and the list matches the server"
+      ]
+    },
+    {
+      "name": "Delete Failure Handling And Re-sync",
+      "tool": "DeleteConfirmDialog + deleteTask API client",
+      "priority": "P1",
+      "skill_id": "SKILL_006",
+      "testcases": [],
+      "capability": "Handles a failed DELETE /tasks/{id} by showing the error banner, keeping or restoring the row as the server dictates, and re-syncing the list.",
+      "dependencies": [
+        "SKILL_003"
+      ],
+      "prompt_template": "You are a frontend engineer extending the existing delete-with-confirmation flow in a React hooks-only app. When deleteTask rejects, show the shared dismissible 'Something went wrong. Please try again.' banner, never leave the UI in a state where the row is removed locally but still exists on the server (no phantom removal), and refetch GET /tasks to re-sync; if the server reports 404 because the task is already gone, the re-sync naturally drops the row. Make sure the confirmation dialog closes in a way that returns focus sensibly and the banner is announced. Only change the failure path; keep the success path's order-preserving removal intact.",
+      "acceptance_criteria": [
+        "With deleteTask mocked to reject, confirming Delete shows 'Something went wrong. Please try again.' in a role='alert' element",
+        "After a failed delete where the mocked server list still contains the task, the task row remains rendered in its original position",
+        "After a failed delete, listTasks is called again and rendered rows exactly match its result",
+        "A failed delete with a 404 where the re-sync list omits the task results in the row being absent",
+        "A later successful delete removes the row, preserves the order of remaining tasks, and clears the banner",
+        "In the running app, confirming Delete while DELETE /tasks/{id} returns 500 shows the banner and the task is still listed"
+      ]
+    },
+    {
+      "name": "Data Reset Footer Note",
+      "tool": "React 18 + plain CSS (app shell footer region)",
+      "priority": "P1",
+      "skill_id": "SKILL_007",
+      "testcases": [],
+      "capability": "Adds a short, unobtrusive footer note stating tasks are stored temporarily and may reset when the server restarts.",
+      "dependencies": [],
+      "prompt_template": "You are a frontend engineer working in the existing routed app shell, which already has a footer region. Render a short note there, e.g. 'Tasks are stored temporarily and may reset when the server restarts.', as a small paragraph using the secondary text color token and a smaller type size from the typography scale, centered or left-aligned consistently with the page container, with spacing from the existing scale. Verify the color against the white page background meets at least 4.5:1 contrast (adjust the secondary token only if it fails, and note it), keep it non-interactive, and ensure it wraps cleanly on narrow mobile widths without overlapping the list.",
+      "acceptance_criteria": [
+        "The footer region on the main route contains the text 'Tasks are stored temporarily and may reset when the server restarts.'",
+        "The note is rendered inside the shell's footer element (e.g. within the <footer> landmark)",
+        "The color token applied to the note has a contrast ratio of at least 4.5:1 against the page background",
+        "The note is visible when opening the running app on the main route, both with an empty list and with tasks",
+        "The note's font size is smaller than or equal to the body text size and uses the secondary text color token",
+        "At 320px viewport width the note wraps without horizontal scrolling"
+      ]
+    },
+    {
+      "name": "Feedback Layer Vitest Suite",
+      "tool": "Vitest + React Testing Library",
+      "priority": "P1",
+      "skill_id": "SKILL_008",
+      "testcases": [],
+      "capability": "Adds Vitest and React Testing Library tests with mocked failing requests covering loading, error, announcement, dismissal, re-sync, and footer behavior for every operation.",
+      "dependencies": [
+        "SKILL_001",
+        "SKILL_002",
+        "SKILL_003",
+        "SKILL_004",
+        "SKILL_005",
+        "SKILL_006",
+        "SKILL_007"
+      ],
+      "prompt_template": "You are a frontend engineer writing tests for the feedback layer in a Vitest + RTL setup that mocks the typed API client or fetch. Write a test file per concern (loading, list failure, create failure, edit failure, delete failure, ErrorMessage a11y, footer note), each using mocked rejected requests and asserting both the banner and the resulting list state after re-sync, using accessible queries like getByRole('alert'). Keep tests deterministic with no real timers or network, and reuse any existing test helpers and render utilities.",
+      "acceptance_criteria": [
+        "npm test (vitest run) passes with the new test files included",
+        "A test asserts the loading indicator appears while listTasks is pending and disappears after resolution",
+        "Separate tests cover rejected listTasks, createTask, updateTask, and deleteTask, each asserting the 'Something went wrong. Please try again.' alert is shown",
+        "Each mutation-failure test asserts listTasks is re-invoked and no phantom added or removed row is present",
+        "A test asserts the dismiss button removes the alert and that the alert has role='alert'",
+        "A test asserts the footer note text is present in the rendered app shell"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-259",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 8,
+    "p0_count": 0,
+    "p1_count": 8,
+    "p2_count": 0
+  }
+}
