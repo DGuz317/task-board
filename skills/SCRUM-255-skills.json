@@ -1,0 +1,112 @@
+{
+  "skills": [
+    {
+      "name": "Shared Error Response Handlers",
+      "tool": "FastAPI exception handlers",
+      "priority": "P0",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Registers exception handlers so 404 (task not found), 422 (validation), and any unexpected exception all return a consistent JSON error body with no unhandled 5xx.",
+      "dependencies": [],
+      "prompt_template": "You are a senior FastAPI engineer. Build on the existing app factory's uniform {'detail': ...} error shape: register handlers for the repository's domain not-found error (404), RequestValidationError (422), and a catch-all Exception handler that returns a generic JSON 500 body without leaking internals and logs the traceback. Do not recreate the app factory; extend it. Keep handlers in a single small module and wire them in the factory.",
+      "acceptance_criteria": [
+        "A request that raises the repository not-found error returns status 404 with Content-Type application/json and a body containing a string 'detail' key",
+        "A request with an invalid body returns status 422 with a JSON body containing a 'detail' key",
+        "A route that raises an unexpected RuntimeError returns a JSON body with a 'detail' key and no stack trace text, and the TestClient (raise_server_exceptions=False) does not raise",
+        "The 404 and 422 bodies share the same top-level key set ('detail')",
+        "Handlers are registered inside the existing app factory so create_app() returns an app that applies them"
+      ]
+    },
+    {
+      "name": "Task List and Create Routes",
+      "tool": "FastAPI APIRouter",
+      "priority": "P0",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Implements GET /tasks and POST /tasks routes that depend only on the repository interface via the dependency provider.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "You are a senior FastAPI engineer. Create a tasks router (mounted under the existing /api prefix) with GET /tasks returning 200 and the list in created_at ascending order, and POST /tasks accepting TaskCreate and returning 201 with the full Task (server-generated id and created_at). Handlers must obtain storage only via the existing repository dependency provider and use the existing Task/TaskCreate schemas; do not import the concrete in-memory class or reimplement validation or ordering rules. Use response_model and explicit status codes.",
+      "acceptance_criteria": [
+        "GET /api/tasks on an empty store returns 200 and []",
+        "POST /api/tasks with {'title':'A','description':'d'} returns 201 and a body containing id, title 'A', description 'd', and created_at",
+        "GET /api/tasks after creating three tasks returns them ordered by created_at ascending, matching creation order",
+        "POST /api/tasks with an empty or whitespace-only title returns 422",
+        "POST /api/tasks with a 101-character title returns 422",
+        "The router module imports no concrete repository class, only the dependency provider and repository interface/type",
+        "The router is included in the app returned by create_app()"
+      ]
+    },
+    {
+      "name": "Task Update and Delete Routes",
+      "tool": "FastAPI APIRouter",
+      "priority": "P0",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Implements PUT /tasks/{id} and DELETE /tasks/{id} with correct 200/204/404/422 behavior through the repository interface.",
+      "dependencies": [
+        "SKILL_002"
+      ],
+      "prompt_template": "You are a senior FastAPI engineer. Add PUT /tasks/{id} (TaskUpdate body, 200 with updated Task) and DELETE /tasks/{id} (204 with empty body) to the existing tasks router. Rely on the repository's domain not-found error being translated to 404 by the shared handlers rather than catching it ad hoc, and depend only on the repository dependency provider. Updates must keep the task's list position, id, and created_at unchanged.",
+      "acceptance_criteria": [
+        "PUT /api/tasks/{id} with valid body returns 200 with the updated title/description and the original id and created_at",
+        "After PUT, GET /api/tasks returns the task at its original position",
+        "PUT /api/tasks/{unknown_id} returns 404 with a JSON 'detail' body",
+        "PUT /api/tasks/{id} with an empty title returns 422",
+        "DELETE /api/tasks/{id} returns 204 with an empty response body",
+        "DELETE /api/tasks/{unknown_id} returns 404 with a JSON 'detail' body",
+        "After DELETE, GET /api/tasks no longer contains the task and remaining tasks keep their relative order"
+      ]
+    },
+    {
+      "name": "Endpoint Contract Test Suite",
+      "tool": "pytest with FastAPI TestClient",
+      "priority": "P0",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Provides a pytest + TestClient suite covering every endpoint and status code in the contract, ordering, persistence across requests, and the JSON 404 body.",
+      "dependencies": [
+        "SKILL_003"
+      ],
+      "prompt_template": "You are a senior Python test engineer. Write pytest tests using TestClient against create_app(), with a fixture that overrides the repository dependency to give each test a fresh store. Cover GET/POST/PUT/DELETE success paths, 404 and 422 for each applicable endpoint, created_at ascending ordering, persistence across multiple requests within one client session, ID non-reuse after delete, JSON 404 body shape, and that no response is a 5xx. Assert on status codes and body fields explicitly.",
+      "acceptance_criteria": [
+        "pytest runs the new test module and every test passes",
+        "There is at least one test for each of: GET 200, POST 201, POST 422, PUT 200, PUT 404, PUT 422, DELETE 204, DELETE 404",
+        "A test creates tasks, then makes separate GET requests with the same client and asserts the tasks persist in creation order",
+        "A test asserts the 404 response has Content-Type application/json and a 'detail' key",
+        "A test deletes a task, creates another, and asserts the new id differs from the deleted id",
+        "A test injects a failing repository and asserts the response is a JSON 500 handled by the catch-all, not a raised exception",
+        "Each test gets an isolated repository (a task created in one test is not visible in another)"
+      ]
+    },
+    {
+      "name": "API Latency p95 Timing Tests",
+      "tool": "pytest with FastAPI TestClient",
+      "priority": "P1",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Adds pytest timing checks asserting p95 latency under 200 ms for each CRUD endpoint.",
+      "dependencies": [
+        "SKILL_004"
+      ],
+      "prompt_template": "You are a senior Python test engineer. Add a pytest module that, for each endpoint (GET list, POST, PUT, DELETE), issues a fixed number of requests (e.g. 100) via TestClient against a store pre-seeded with up to 100 tasks, measures each request with time.perf_counter, computes p95, and asserts it is below 200 ms. Keep the sample size and threshold as named constants and print the measured p95 on failure so regressions are diagnosable.",
+      "acceptance_criteria": [
+        "A test per endpoint (GET /api/tasks, POST /api/tasks, PUT /api/tasks/{id}, DELETE /api/tasks/{id}) computes p95 over at least 50 samples",
+        "Each test asserts p95 < 200 ms and pytest passes on the reference implementation",
+        "The GET timing test runs against a store seeded with 100 tasks",
+        "The assertion failure message includes the measured p95 in milliseconds",
+        "Timing tests are tagged with a pytest marker (e.g. 'timing') so they can be selected or deselected"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-255",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 5,
+    "p0_count": 4,
+    "p1_count": 1,
+    "p2_count": 0
+  }
+}
