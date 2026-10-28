@@ -1,0 +1,121 @@
+{
+  "skills": [
+    {
+      "name": "Typed Task API Client",
+      "tool": "fetch API + TypeScript (frontend/src/api)",
+      "priority": "P0",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Provides a frontend API client module that owns the frontend-to-backend wiring contract: a single env-driven base URL (VITE_API_BASE_URL, which already includes the backend's /api mount prefix) so every call resolves to /api/tasks, plus JSON request helpers, a typed Task shape, and listTasks/createTask/updateTask/deleteTask functions that later epics reuse.",
+      "dependencies": [],
+      "prompt_template": "You are implementing the frontend API client for the Task Board app (React 18 + Vite, Vitest). This skill owns the frontend-to-backend wiring contract. The backend mounts all routes under /api (per the foundation epic), and the foundation epic's .env.example already defines VITE_API_BASE_URL, so use that exact variable name and do NOT introduce a second one such as VITE_API_URL. Define the contract as: VITE_API_BASE_URL holds the full base including the /api prefix (for example http://localhost:8000/api), the client appends only resource paths such as /tasks, and the client never adds or strips /api itself. Read the existing .env.example and dev scripts first; if the variable is documented there without the /api suffix or with a different name, reconcile only by adding a short comment or example value that states the contract (do not rewrite the setup epic's scripts or config). Create a small module under frontend/src/api with: a base URL read from import.meta.env.VITE_API_BASE_URL (trailing slash trimmed, falling back to '/api' when unset), a JSON request helper that sets Content-Type, parses JSON, and throws a typed ApiError carrying status and the backend's {'detail': ...} message on non-2xx responses, and handles 204 with no body. Export a Task type ({id, title, description, created_at}) and functions listTasks, createTask, updateTask, deleteTask that call GET/POST {base}/tasks, PUT {base}/tasks/{id}, DELETE {base}/tasks/{id}. Do not hardcode URLs elsewhere. Write Vitest tests with a mocked global fetch for each function, the error path, and a contract test that stubs VITE_API_BASE_URL to an /api-prefixed value and asserts the final request URL ends in /api/tasks.",
+      "acceptance_criteria": [
+        "With VITE_API_BASE_URL stubbed to 'http://localhost:8000/api', listTasks() issues a GET to exactly 'http://localhost:8000/api/tasks' and resolves to the parsed Task[] in the order returned by the server",
+        "A trailing slash on VITE_API_BASE_URL (e.g. 'http://localhost:8000/api/') does not produce a double slash in the request URL, and with the variable unset the client requests '/api/tasks'",
+        "createTask({title:'A'}) issues a POST with a JSON body and a Content-Type: application/json header and resolves to the returned Task",
+        "updateTask(3, {title:'B', description:'C'}) issues PUT to {base}/tasks/3 (ending in /api/tasks/3) and resolves to the returned Task",
+        "deleteTask(3) issues DELETE to {base}/tasks/3 and resolves without throwing on a 204 response with no body",
+        "A 404 response with body {\"detail\":\"Task not found\"} causes the helper to reject with an ApiError whose status is 404 and whose message contains 'Task not found'",
+        "Base URL is read only from import.meta.env.VITE_API_BASE_URL, no reference to VITE_API_URL exists anywhere in the repo, and no other source file in frontend/src contains a hardcoded http://localhost URL",
+        ".env.example documents VITE_API_BASE_URL as including the /api prefix, using the same variable name the setup epic defined",
+        "A Task type exported from the module has id, title, description and created_at fields and `npm run build` (with type-check) succeeds",
+        "Vitest tests for the client, including the /api/tasks contract test, pass with `npm test`"
+      ]
+    },
+    {
+      "name": "Task Row Card Component",
+      "tool": "React 18 + plain CSS (frontend/src/components)",
+      "priority": "P0",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Renders a single task as a styled flat card showing the title, an optional description, and a reserved right-edge slot for the future 3-dot menu.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "You are building the TaskRow component for the Task Board list. Render the task title and, only when the description is non-empty, the description, using only React's default JSX escaping (never dangerouslySetInnerHTML). Style with plain CSS using the global design tokens: a flat card on the white page with a 1px solid #E5E7EB border, 8px border-radius, no box-shadow, 12px vertical / 16px horizontal padding; title 16px with font-weight 500 in the primary text color; description 14px in the secondary text color. Lay the row out as flex with the text block taking the remaining width (min-width:0, wrapping long words) and a fixed-width right-edge slot (an empty element with a data-testid such as 'task-row-actions', at least 44px wide to match touch-target sizing) where the kebab menu will later be placed via a prop/children. Keep it responsive: the card fills the container width on mobile and desktop.",
+      "acceptance_criteria": [
+        "Rendering TaskRow with title 'Buy milk' and no description shows the text 'Buy milk' and no description element",
+        "Rendering TaskRow with a description shows the description text in an element separate from the title",
+        "Rendering a task whose title is '<script>alert(1)</script>' displays that literal text and creates no <script> element in the DOM",
+        "The TaskRow source and its CSS contain no dangerouslySetInnerHTML",
+        "Each rendered row contains an element with data-testid 'task-row-actions' positioned after the text block as the last child of the row",
+        "The stylesheet for the row defines border: 1px solid #E5E7EB, border-radius: 8px, padding: 12px 16px, and no box-shadow",
+        "The title style has font-size 16px and font-weight 500; the description style has font-size 14px and uses the secondary text color token",
+        "A very long title without spaces wraps or truncates within the card rather than overflowing the row"
+      ]
+    },
+    {
+      "name": "Task List With Fetch",
+      "tool": "React hooks + Task API client (frontend/src/components/TaskList)",
+      "priority": "P0",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Fetches tasks from GET /tasks on mount and renders them as a vertical list of TaskRow cards in server order, with the exact-text empty state. Loading indicators and error/retry UI are intentionally out of scope and owned by the Loading, Error States & Data-Reset Notice epic.",
+      "dependencies": [
+        "SKILL_001",
+        "SKILL_002"
+      ],
+      "prompt_template": "You are implementing the TaskList component for the Task Board. On mount, call listTasks() from the API client (use a hook such as useTasks that exposes tasks and a reload function so later create/edit/delete epics can reuse it), guard against state updates after unmount or double-invoked effects, and render one TaskRow per task in exactly the order returned (oldest at top, newest at bottom) with no client-side sorting. Use a semantic <ul>/<li> list with 8px vertical gap between rows via CSS gap and the global design tokens. When the fetch has completed successfully and the list is empty show exactly the text 'No tasks yet. Click Create to add one.' in muted secondary color, centered with comfortable spacing. Track only the minimum internal state needed to avoid showing the empty-state text before the first successful response (for example a private 'hasLoaded' flag); render nothing (no list, no empty-state text) while the first fetch is pending or if it fails. Do NOT implement a loading spinner/role='status' indicator, an error message/role='alert', a Retry button, or any error-state hook in this skill: the Loading, Error States & Data-Reset Notice epic (Initial Load Spinner Indicator, Dismissible Inline ErrorMessage Component, Error State Hook And List Wiring) owns those and will extend the useTasks hook and TaskList markup. Keep the hook shape easy to extend (return an object so status/error fields can be added later without breaking callers). Never use dangerouslySetInnerHTML.",
+      "acceptance_criteria": [
+        "On mount TaskList calls GET /tasks exactly once (verified with a mocked fetch)",
+        "With a mocked response of three tasks, three list items are rendered in the same order as the response array",
+        "With a mocked response of [] the exact text 'No tasks yet. Click Create to add one.' is displayed and no list items are rendered",
+        "While the fetch is pending the empty-state text is not shown",
+        "If the fetch rejects or returns 500, the empty-state text is not shown and no list items are rendered; the TaskList source contains no loading indicator, role='alert' error message, or Retry button (these belong to the Loading, Error States & Data-Reset Notice epic)",
+        "Rows in the list are separated by 8px (list uses gap: 8px or equivalent margin) with no list bullets",
+        "The useTasks hook exposes a reload function that re-fetches and replaces the displayed tasks"
+      ]
+    },
+    {
+      "name": "Mount List In App Shell",
+      "tool": "React Router app shell (frontend/src/App)",
+      "priority": "P0",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Mounts the TaskList into the existing app shell's list region on the main route so the running app shows the task list on load, reaching the backend at /api/tasks through the API client's wiring contract.",
+      "dependencies": [
+        "SKILL_003"
+      ],
+      "prompt_template": "You are wiring the TaskList into the existing routed app shell created by the foundation epic. Replace the placeholder content in the shell's list region of the index route ('/') with the TaskList component, keeping the page header, error boundary, and not-found route intact. The page stays a white background with the list constrained to a readable max-width column, centered, using the global spacing tokens, and it must remain usable on narrow mobile viewports. Leave room in the header area for the future Create button but do not implement it. Do not redefine the API base URL variable or edit the dev scripts: the wiring contract (VITE_API_BASE_URL including the /api prefix) is owned by the Typed Task API Client skill (SKILL_001) and the .env.example/dev scripts come from the foundation epic. Your job is only to verify, by running the app against the backend, that the mounted list actually reaches GET /api/tasks and renders the result; if it does not, report the mismatch rather than adding a second variable or hardcoding a URL.",
+      "acceptance_criteria": [
+        "Opening '/' in the running dev app triggers a GET to the backend's /api/tasks and renders each returned task as a card within the shell's list region",
+        "With a backend holding zero tasks, opening '/' displays 'No tasks yet. Click Create to add one.'",
+        "After creating tasks directly via the API and doing a full page reload of '/', the page shows those tasks in creation order",
+        "Unknown routes still render the not-found page and the page header remains visible on '/'",
+        "A smoke test rendering <App/> at '/' with mocked fetch finds the TaskList content inside the shell's list region element and asserts the requested URL ends in /api/tasks",
+        "This skill introduces no new environment variable and no hardcoded backend URL; it relies on the VITE_API_BASE_URL contract from SKILL_001",
+        "`npm run build` and `npm run lint` succeed with the TaskList mounted"
+      ]
+    },
+    {
+      "name": "Task List Vitest Suite",
+      "tool": "Vitest + React Testing Library",
+      "priority": "P0",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Adds Vitest and React Testing Library tests with mocked fetch covering empty state, ordering, description present/absent, and refresh behavior of the task list.",
+      "dependencies": [
+        "SKILL_003",
+        "SKILL_004"
+      ],
+      "prompt_template": "You are writing the frontend tests for the View Task List epic using Vitest and React Testing Library with vi.stubGlobal/vi.fn to mock fetch (no real network). Cover: the exact empty-state text, rendering order matches the API array order, description shown when present and absent when empty or missing, escaping of HTML-looking user text, and refresh behavior (unmount and re-render the app, assert GET /tasks is called again and the list reflects the newly mocked server state, including a task that was removed). Use accessible queries (getByRole, getByText) rather than CSS selectors, restore mocks between tests, and keep tests deterministic.",
+      "acceptance_criteria": [
+        "A test asserts the exact string 'No tasks yet. Click Create to add one.' appears when fetch resolves to []",
+        "A test mocks tasks with ids 1,2,3 and asserts the rendered titles appear in the order 1,2,3 via getAllByRole('listitem')",
+        "A test asserts a task with a description shows that description text and a task with an empty description renders no description element",
+        "A test renders a task titled '<b>x</b>' and asserts the literal text is in the document and no <b> element is created",
+        "A refresh test renders the app, unmounts, changes the mocked fetch response, re-renders, and asserts fetch was called twice and the second render shows the new data",
+        "All tests run offline with fetch mocked and `npm test` passes with zero failures"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-256",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 5,
+    "p0_count": 5,
+    "p1_count": 0,
+    "p2_count": 0
+  }
+}
