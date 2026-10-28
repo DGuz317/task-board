@@ -1,0 +1,221 @@
+{
+  "skills": [
+    {
+      "name": "E2E Fixtures and Page Helpers",
+      "tool": "Playwright (Chromium) test fixtures",
+      "priority": "P0",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Provides shared Playwright fixtures and page-object helpers that reset in-memory backend state before each test and wrap common UI and API interactions.",
+      "dependencies": [],
+      "prompt_template": "You are extending the existing Playwright setup (playwright.config with a webServer that boots backend and frontend). Create e2e/fixtures.ts exporting an extended `test` and `expect`, with an `api` fixture (APIRequestContext pointed at the backend /api base URL) and an auto-run fixture that deletes all existing tasks via GET /tasks plus DELETE /tasks/{id} before each test, because storage is in-memory and tests must be isolated. Add a TaskBoardPage helper class with methods for open(), clickCreate(), fillForm(title, description), submit(), rowByTitle(title), openMenu(title), chooseMenuItem('Edit'|'Delete'), and confirmDelete(), using role- and name-based locators only. Keep the helpers small, typed, and matching existing e2e code style; do not write any spec assertions beyond a trivial smoke check of the helpers.",
+      "acceptance_criteria": [
+        "e2e/fixtures.ts exports `test` and `expect`, and a spec importing from it runs under `npx playwright test`",
+        "After a test creates 3 tasks via the api fixture, the next test starts with GET /api/tasks returning an empty array",
+        "TaskBoardPage.open() navigates to the app root and the 'Create' button is visible",
+        "TaskBoardPage.rowByTitle('Buy milk') resolves to a locator that is visible after the task is created through the UI",
+        "No locator in the helpers uses CSS class selectors or nth-child selectors; all use getByRole, getByText, or getByLabel"
+      ]
+    },
+    {
+      "name": "E2E Load, Create and Validation",
+      "tool": "Playwright (Chromium)",
+      "priority": "P0",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Adds Playwright specs for PRD criteria on initial empty load, the frontend-to-backend wiring (the running app reaches GET /api/tasks), creating 'Buy milk' (201), ordering A/B/C, and title validation.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Write e2e/create.spec.ts using the shared fixtures and TaskBoardPage helper. Cover: initial empty state text, a wiring smoke check that loading the app root through the real frontend (no mocked routes) issues a GET request to /api/tasks that returns 200 (captured via page.waitForResponse), creating 'Buy milk' with the POST /tasks response asserted as 201 via page.waitForResponse, creating A then B then C and asserting DOM order, and validation for empty, whitespace-only, and over-length (101 char) titles, asserting that no POST request is sent for empty or whitespace input. Also cover Cancel and Esc closing the form without creating anything. Use web-first assertions and no fixed sleeps.",
+      "acceptance_criteria": [
+        "With zero tasks, the page shows the exact text 'No tasks yet. Click Create to add one.'",
+        "On page load with no request mocking, the browser sends GET /api/tasks and receives status 200 from the real backend (proves the frontend API base URL and the backend /api mount agree)",
+        "Creating 'Buy milk' waits on a POST /api/tasks response with status 201 and then shows a 'Buy milk' row without a page reload",
+        "After creating A, B, C in sequence, the rendered rows read A, B, C from top to bottom",
+        "Submitting an empty title and a whitespace-only title each show 'Title is required' and trigger zero POST /api/tasks requests (counted with page.on('request'))",
+        "Submitting a 101-character title shows a visible inline validation error, the modal stays open, and no task row is added",
+        "Pressing Esc and clicking Cancel each close the modal and leave the task list unchanged",
+        "`npx playwright test e2e/create.spec.ts --project=chromium` passes"
+      ]
+    },
+    {
+      "name": "E2E Menu, Edit and Delete",
+      "tool": "Playwright (Chromium)",
+      "priority": "P0",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Adds Playwright specs for the 3-dot menu open/close behavior, edit in place (200), delete with confirmation (204), and persistence across refresh.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Write e2e/actions.spec.ts using the shared fixtures; seed tasks through the api fixture for speed. Cover menu open, close via click-outside and Esc, and that exactly two items ('Edit' and 'Delete') appear. Cover editing a task asserting a PUT /tasks/{id} 200 response and that the row keeps its list position, and deleting through the confirmation dialog asserting a DELETE 204 response, plus cancelling the dialog sends no DELETE. Finish with refresh persistence: after create, edit, and delete, a page.reload() shows the same state and the deleted task does not return.",
+      "acceptance_criteria": [
+        "Clicking a row's 3-dot button shows a menu with exactly two menuitems named 'Edit' and 'Delete'",
+        "Clicking outside the menu and pressing Esc each hide the menu",
+        "Opening a second row's menu leaves only one menu visible",
+        "Editing the middle of three tasks waits on a PUT /api/tasks/{id} response with status 200, shows the new title, and the row remains second in the list",
+        "Choosing Delete shows a confirmation dialog; cancelling sends no DELETE request and keeps the row",
+        "Confirming delete waits on a DELETE /api/tasks/{id} response with status 204 and removes the row while the remaining rows keep their relative order",
+        "After page.reload() the edited title is still shown and the deleted task is absent",
+        "`npx playwright test e2e/actions.spec.ts --project=chromium` passes"
+      ]
+    },
+    {
+      "name": "E2E Unknown-ID 404 API Checks",
+      "tool": "Playwright APIRequestContext",
+      "priority": "P0",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Adds Playwright API-level specs asserting 404 for PUT and DELETE on unknown task ids against the running stack.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Write e2e/api-404.spec.ts using the api fixture against the real running backend. Assert that PUT /tasks/{unknown} with a valid body and DELETE /tasks/{unknown} both return 404 with the uniform JSON {'detail': ...} error shape. Also assert that a deleted task's id returns 404 on a subsequent DELETE and that POST with an empty title returns 422 directly. Keep the file small and independent of browser pages.",
+      "acceptance_criteria": [
+        "PUT /api/tasks/does-not-exist with body {\"title\":\"x\"} returns status 404 and a JSON body containing a 'detail' key",
+        "DELETE /api/tasks/does-not-exist returns status 404 and a JSON body containing a 'detail' key",
+        "After a task is created and deleted via the API, a second DELETE for the same id returns 404",
+        "POST /api/tasks with {\"title\":\"   \"} returns status 422",
+        "`npx playwright test e2e/api-404.spec.ts` passes"
+      ]
+    },
+    {
+      "name": "E2E Keyboard-Only CRUD Flow",
+      "tool": "Playwright (Chromium) keyboard API",
+      "priority": "P0",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Adds a Playwright spec that creates, edits, and deletes a task using only the keyboard.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Write e2e/keyboard.spec.ts that performs a full create, edit, and delete flow using only page.keyboard.press and focus assertions, with no mouse clicks or locator.click() calls. Tab to the Create button and press Enter, type the title, submit, then Tab to the row's 3-dot button, open the menu with Enter or Space, move with ArrowDown, and select with Enter. Assert focus returns sensibly (modal closes and focus returns to the trigger) and that the delete confirmation can be confirmed by keyboard.",
+      "acceptance_criteria": [
+        "The spec file contains no `.click(` calls and no mouse API usage",
+        "A task titled 'Keyboard task' is created by Tab to Create, Enter, typing, and Enter/submit, and appears in the list",
+        "Opening the row menu with Enter or Space, pressing ArrowDown to 'Edit', and pressing Enter opens the form pre-filled with 'Keyboard task'",
+        "After saving an edited title via keyboard, the list shows the new title and the old title is gone",
+        "Selecting Delete via ArrowDown and Enter, then confirming via keyboard, removes the row and the empty-state text is shown",
+        "Closing the create modal with Esc returns focus to the Create button (verified with toBeFocused)",
+        "`npx playwright test e2e/keyboard.spec.ts --project=chromium` passes"
+      ]
+    },
+    {
+      "name": "Axe-core Accessibility Assertions",
+      "tool": "@axe-core/playwright",
+      "priority": "P0",
+      "skill_id": "SKILL_006",
+      "testcases": [],
+      "capability": "Adds axe-core accessibility checks to Playwright that fail on any critical or serious violations across the app's key UI states.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Install @axe-core/playwright as a dev dependency and write e2e/a11y.spec.ts plus a small helper `expectNoSeriousViolations(page)` that runs AxeBuilder and fails if any violation has impact 'critical' or 'serious', printing the rule ids and nodes in the failure message. Run it against the empty state, a populated list, the open create modal, an open edit modal, an open 3-dot menu, and the delete confirmation dialog. Do not disable rules to get green; if a real violation appears, report it clearly in the output rather than suppressing it.",
+      "acceptance_criteria": [
+        "package.json lists @axe-core/playwright in devDependencies",
+        "e2e/a11y.spec.ts contains separate tests for the empty state, populated list, create modal, edit modal, open menu, and delete confirmation dialog",
+        "The helper fails a test when any violation has impact 'critical' or 'serious' and ignores minor and moderate impacts",
+        "The failure message includes the violated rule id (e.g. 'color-contrast')",
+        "No axe rule is globally disabled via disableRules in the spec or helper",
+        "`npx playwright test e2e/a11y.spec.ts --project=chromium` passes with 0 critical/serious violations"
+      ]
+    },
+    {
+      "name": "Playwright UI Timing Assertions",
+      "tool": "Playwright (Chromium) performance timing",
+      "priority": "P1",
+      "skill_id": "SKILL_007",
+      "testcases": [],
+      "capability": "Adds Playwright specs asserting each CRUD action is reflected in the UI in under 500 ms, including with a list of up to 100 tasks.",
+      "dependencies": [
+        "SKILL_001"
+      ],
+      "prompt_template": "Write e2e/performance.spec.ts that seeds 100 tasks through the api fixture, then measures wall-clock time (performance.now in the page, or Date.now around the action plus the expect that proves the UI updated) from user action to visible UI change for create, edit, and delete. Assert each is under 500 ms and that the initial render of the 100-task list completes quickly. Warm up once before measuring to avoid cold-start noise, take the median of a few runs to reduce flakiness, and make the threshold a named constant.",
+      "acceptance_criteria": [
+        "The spec seeds exactly 100 tasks via POST /api/tasks before measuring",
+        "Create: time from clicking Submit to the new row being visible is < 500 ms",
+        "Edit: time from clicking Save to the updated title being visible is < 500 ms",
+        "Delete: time from confirming to the row disappearing is < 500 ms",
+        "After page.goto with 100 tasks, all 100 rows are rendered (count equals 100)",
+        "The 500 ms threshold is defined as a single named constant and the spec contains no waitForTimeout calls",
+        "`npx playwright test e2e/performance.spec.ts --project=chromium` passes"
+      ]
+    },
+    {
+      "name": "Lighthouse CI Configuration",
+      "tool": "Lighthouse CI (@lhci/cli)",
+      "priority": "P1",
+      "skill_id": "SKILL_008",
+      "testcases": [],
+      "capability": "Configures Lighthouse CI to audit the built frontend and fail on Accessibility below 90 or initial load at or above 2 s.",
+      "dependencies": [],
+      "prompt_template": "Add @lhci/cli as a dev dependency, create lighthouserc.json, and add an npm script (e.g. `lhci`) that builds the frontend, serves the production build (vite preview) together with the backend so the list loads real data, and runs lhci autorun against the root URL using headless Chromium. Assertions: categories:accessibility minScore 0.9 as error, and a load metric (largest-contentful-paint or interactive/first-contentful-paint, justified in a comment-free but clearly named config) with maxNumericValue 2000 ms as error. Use numberOfRuns of 3 for stability and keep reports as temporary-public-storage-free local filesystem output.",
+      "acceptance_criteria": [
+        "lighthouserc.json exists with an assertion of categories:accessibility minScore 0.9 at level 'error'",
+        "lighthouserc.json asserts a load-time metric with maxNumericValue 2000 at level 'error'",
+        "lighthouserc.json sets collect.numberOfRuns to 3 and a startServerCommand (or equivalent) that serves the built frontend and the backend",
+        "package.json defines an `lhci` script and @lhci/cli is in devDependencies",
+        "`npm run lhci` exits 0 on the current app and exits non-zero if the accessibility minScore is temporarily raised to 1.01",
+        "Lighthouse reports are written to a git-ignored directory"
+      ]
+    },
+    {
+      "name": "No-DB and No-Auth Repo Checks",
+      "tool": "pytest repo-scan tests",
+      "priority": "P0",
+      "skill_id": "SKILL_009",
+      "testcases": [],
+      "capability": "Adds automated repository checks proving there is no database dependency, connection string, or database file, and no auth UI or endpoints.",
+      "dependencies": [],
+      "prompt_template": "Create backend/tests/test_repo_constraints.py that scans the repo (excluding node_modules, .venv, .git, and lockfile noise where appropriate) to enforce PRD criteria 10-11. Check Python manifests and frontend package.json for database drivers/ORMs (sqlalchemy, psycopg, asyncpg, pymysql, sqlite3 imports, pymongo, redis, prisma, etc.), connection-string patterns (postgres://, mysql://, sqlite:///, mongodb://), and database files (*.db, *.sqlite, *.sqlite3). Also assert the FastAPI OpenAPI schema exposes no auth routes (login, logout, register, signup, token, auth) or security schemes, and that frontend sources contain no login/sign-up UI text or routes. Print precise offending file paths on failure.",
+      "acceptance_criteria": [
+        "The test fails if requirements/pyproject lists any of sqlalchemy, psycopg2, asyncpg, pymysql, pymongo, or redis (verified by the denylist containing them)",
+        "The test asserts no file matching *.db, *.sqlite, or *.sqlite3 exists outside ignored directories",
+        "The test asserts no source or env file matches the patterns postgres://, mysql://, sqlite:///, or mongodb://",
+        "The test loads the app's /openapi.json and asserts no path contains login, logout, register, signup, or token, and that components.securitySchemes is absent or empty",
+        "The test asserts frontend src files contain no route or text for 'Log in', 'Sign up', or '/login'",
+        "`pytest backend/tests/test_repo_constraints.py` passes on the current repo and its failure message names the offending file"
+      ]
+    },
+    {
+      "name": "CI Lighthouse Gate Job and E2E Gate Verification",
+      "tool": "GitHub Actions",
+      "priority": "P0",
+      "skill_id": "SKILL_010",
+      "testcases": [],
+      "capability": "Adds Lighthouse CI as a merge-gating job in a separate, additive workflow file, and verifies (read-only) that the baseline ci.yml owned by the [SETUP] epic already runs the Playwright E2E suite via `npm run test:e2e` as a gating check, so E2E is executed and gated exactly once and the baseline workflow and .adlc.json remain untouched.",
+      "dependencies": [
+        "SKILL_002",
+        "SKILL_003",
+        "SKILL_004",
+        "SKILL_005",
+        "SKILL_006",
+        "SKILL_007",
+        "SKILL_008",
+        "SKILL_009"
+      ],
+      "prompt_template": "The [SETUP] epic already owns the baseline GitHub Actions workflow ci.yml (lint, backend pytest, frontend Vitest, and the Playwright E2E suite via `npm run test:e2e`) and .adlc.json (test_command and dev scripts). Do NOT edit, rewrite, or reformat those files, so this work cannot conflict with them. Do NOT add a second Playwright job or any step that runs `npx playwright test` or `npm run test:e2e`: the E2E suite must be executed and gated only by ci.yml. First, read ci.yml without modifying it and confirm it runs `npm run test:e2e` on push and pull_request, that `npm run test:e2e` resolves to the Playwright suite (including the specs from SKILL_002 to SKILL_007 and the webServer config that starts backend and frontend), and that the E2E step is not marked continue-on-error. Then create a new workflow file .github/workflows/lighthouse-gate.yml that triggers on push and pull_request and defines a single clearly named job `lighthouse-ci` (checkout, set up Node and Python, install backend and frontend dependencies, then `npm run lhci`) with no continue-on-error. Upload the Lighthouse report directory with actions/upload-artifact using `if: failure()`. Backend pytest (which already includes the repo-constraint tests), Vitest, and Playwright remain in ci.yml and must not be duplicated here. Add a header comment listing which job names should be configured as required status checks for branch protection: the existing ci.yml job(s) that run lint, pytest, Vitest and `npm run test:e2e` (use their actual job names as read from ci.yml) plus `lighthouse-ci`. Finally, read .adlc.json without modifying it and confirm its test_command runs pytest, Vitest, and Playwright. If ci.yml or .adlc.json is missing any of these (for example no Playwright report artifact upload on failure, or E2E not gating), report the gap in your output for the SETUP owner instead of editing those files.",
+      "acceptance_criteria": [
+        ".github/workflows/lighthouse-gate.yml exists and triggers on both push and pull_request",
+        "The workflow defines a job named `lighthouse-ci` that runs `npm run lhci`, with no step marked continue-on-error",
+        "The new workflow contains no step that runs `npx playwright test`, `npm run test:e2e`, backend pytest, or Vitest, so the Playwright suite runs only once per push/PR (in ci.yml)",
+        "On failure, the Lighthouse report directory is uploaded with actions/upload-artifact",
+        "The change set touches only the new workflow file: ci.yml (including its lint and `npm run test:e2e` steps) and .adlc.json are unmodified",
+        "Read-only verification confirms ci.yml runs `npm run test:e2e` on push and pull_request without continue-on-error, and that this script runs the Playwright suite with a webServer config that starts both backend and frontend; any gap is reported for the SETUP owner",
+        "A header comment in the workflow documents the job names to configure as required status checks for branch protection (the ci.yml job(s) covering lint, pytest, Vitest and E2E, plus `lighthouse-ci`)",
+        "The existing .adlc.json test_command is verified to run pytest, Vitest, and Playwright",
+        "Running the .adlc.json test_command locally from a clean checkout exits 0 with all suites passing"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-260",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 10,
+    "p0_count": 8,
+    "p1_count": 2,
+    "p2_count": 0
+  }
+}
