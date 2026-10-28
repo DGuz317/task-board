@@ -1,0 +1,137 @@
+{
+  "skills": [
+    {
+      "name": "Accessible Modal Component",
+      "tool": "React 18 + plain CSS",
+      "priority": "P0",
+      "skill_id": "SKILL_001",
+      "testcases": [],
+      "capability": "Provides a reusable, accessible Modal dialog component with scrim, focus trap, focus return, and Esc-to-close behavior.",
+      "dependencies": [],
+      "prompt_template": "You are implementing a reusable Modal component in the existing React 18 + Vite frontend (hooks only, plain CSS, using the global design tokens). Render a role='dialog' element with aria-modal and aria-labelledby pointing at the title element, inside a fixed overlay with a 40% black scrim; the panel is 480px wide (max-width 100% on small screens), white, with a 8px-ish rounded corner, consistent padding from the app's spacing scale and an optional light shadow. Trap Tab/Shift+Tab focus inside the dialog, move focus to the first focusable element (or a provided initial-focus ref) on open, return focus to the previously focused trigger on close, and close on Esc (and optionally scrim click) via an onClose callback. Use only 100-150ms color/opacity transitions, honor the existing reduced-motion handling and the visible focus ring, and render via a portal.",
+      "acceptance_criteria": [
+        "Rendering <Modal open title='X'> exposes an element with role='dialog' whose aria-labelledby references an element containing the text 'X'",
+        "With the modal open, pressing Tab from the last focusable element moves focus to the first, and Shift+Tab from the first moves to the last",
+        "Pressing Esc calls onClose exactly once",
+        "After the modal closes, document.activeElement is the element that was focused before it opened",
+        "When open, focus is moved inside the dialog",
+        "The scrim uses rgba(0,0,0,0.4) and the panel width is 480px in the Modal CSS, with transitions limited to color/opacity at 100-150ms",
+        "Modal does not render any dialog DOM when open is false"
+      ]
+    },
+    {
+      "name": "Task Form Validation Logic",
+      "tool": "TypeScript/JavaScript utility module + Vitest",
+      "priority": "P0",
+      "skill_id": "SKILL_002",
+      "testcases": [],
+      "capability": "Provides a pure validation helper that trims input and enforces title (1-100) and description (0-500) rules with user-facing messages.",
+      "dependencies": [],
+      "prompt_template": "You are adding a small pure validation module to the React frontend, matching the existing code's naming and comment density. Export a function validateTask({title, description}) that returns trimmed values and an errors object. Title is whitespace-trimmed and required (message exactly 'Title is required'), max 100 characters; description is optional, max 500 characters; over-length cases return clear messages such as 'Title must be 100 characters or fewer' and 'Description must be 500 characters or fewer'. Keep it free of React and DOM dependencies so it can be reused by Create and Edit, and add Vitest unit tests for the boundaries.",
+      "acceptance_criteria": [
+        "validateTask({title:'',description:''}).errors.title === 'Title is required'",
+        "validateTask({title:'   ',description:''}).errors.title === 'Title is required'",
+        "validateTask({title:'  Buy milk  '}).values.title === 'Buy milk'",
+        "A 100-character title yields no title error and a 101-character title yields a title error message",
+        "A 500-character description yields no error and a 501-character description yields a description error message",
+        "A missing/empty description is valid and yields no description error",
+        "Unit tests for these boundaries pass under vitest"
+      ]
+    },
+    {
+      "name": "Reusable TaskForm Component",
+      "tool": "React 18 + plain CSS",
+      "priority": "P0",
+      "skill_id": "SKILL_003",
+      "testcases": [],
+      "capability": "Builds a controlled TaskForm component with Title and Description fields, inline validation errors announced via aria-live, and Cancel/Submit actions, reusable for Create and Edit.",
+      "dependencies": [
+        "SKILL_002"
+      ],
+      "prompt_template": "You are implementing a reusable TaskForm component in the React frontend (hooks only, plain CSS, existing design tokens), accepting initialValues, submitLabel, onSubmit(values), onCancel, and an optional submitting/error prop so Edit can reuse it. Layout: labeled single-line Title input and multi-line Description textarea with consistent vertical spacing from the app's spacing scale, full-width fields with a visible focus ring, 8px radii, a solid accent (#2563EB, white text, 40px height, 8px radius) submit button and a neutral secondary Cancel button, both with hover/focus states using only 100-150ms color/opacity transitions. On submit, run validateTask; if invalid, do NOT call onSubmit, show the inline error under the field (exactly 'Title is required' for empty/whitespace title) inside a container with aria-live='polite', and link it to the input via aria-describedby/aria-invalid; over-length values show the validation message. Submit trimmed values only and autofocus the Title field.",
+      "acceptance_criteria": [
+        "Submitting with an empty or whitespace-only title shows the text 'Title is required' and does not call onSubmit",
+        "The error message element is inside or is a region with aria-live='polite'",
+        "The title input has aria-invalid='true' and aria-describedby referencing the error when invalid",
+        "Submitting title '  Hello  ' with description 'x' calls onSubmit with {title:'Hello', description:'x'}",
+        "Typing 101 chars in the title and submitting shows a length error and does not call onSubmit; 501 chars in description does likewise",
+        "Clicking Cancel calls onCancel and never calls onSubmit",
+        "Passing initialValues pre-fills the Title and Description fields",
+        "Form buttons share the app's spacing/padding scale and the submit button is 40px high with 8px radius and #2563EB background"
+      ]
+    },
+    {
+      "name": "Create Task Modal Container",
+      "tool": "POST /tasks via the typed Task API client",
+      "priority": "P0",
+      "skill_id": "SKILL_004",
+      "testcases": [],
+      "capability": "Composes Modal and TaskForm into a CreateTaskModal that calls the typed createTask API client and reports the created task to the parent.",
+      "dependencies": [
+        "SKILL_001",
+        "SKILL_003"
+      ],
+      "prompt_template": "You are implementing a CreateTaskModal component in the React frontend that composes the reusable Modal and TaskForm with a 'Create task' heading wired through aria-labelledby. On valid submit, call the existing createTask client function (POST /tasks, expecting 201), then call onCreated(task) and onClose; do not call the API on validation failure. Esc and Cancel call onClose and create nothing. While the request is in flight disable the submit button to prevent double submits, and on API failure keep the modal open and show a concise inline error message in an aria-live='polite' region. Reuse the existing styling tokens: 480px dialog, 40% black scrim, consistent spacing, 100-150ms color/opacity transitions only.",
+      "acceptance_criteria": [
+        "Submitting a valid form calls createTask exactly once with the trimmed title and description",
+        "On a resolved createTask, onCreated receives the returned task and onClose is called",
+        "Submitting an empty title makes zero fetch/createTask calls",
+        "Pressing Esc or clicking Cancel calls onClose and makes zero createTask calls",
+        "If createTask rejects, the modal remains open and an error message is displayed",
+        "The submit button is disabled while the request is pending"
+      ]
+    },
+    {
+      "name": "Wire Create Button and List Append",
+      "tool": "React state + existing TaskList/App shell",
+      "priority": "P0",
+      "skill_id": "SKILL_005",
+      "testcases": [],
+      "capability": "Connects the always-visible header Create button to open the CreateTaskModal and appends newly created tasks to the bottom of the rendered list without reload.",
+      "dependencies": [
+        "SKILL_004"
+      ],
+      "prompt_template": "You are wiring the Create flow into the existing app shell and TaskList (hooks only, plain CSS, design tokens). Render the always-visible header 'Create' button as a solid accent button: background #2563EB, white text, 8px radius, 40px height, with hover/focus-visible states using only 100-150ms color/opacity transitions; clicking it opens CreateTaskModal and focus returns to this button on close. Lift or expose list state so onCreated appends the returned task at the END of the existing list (no refetch, no page reload, preserving server order and the empty state switching to the list), reflecting in the UI well under 500 ms. Do not duplicate the Modal/TaskForm logic and do not change how the list is initially fetched.",
+      "acceptance_criteria": [
+        "Opening the running app shows a 'Create' button in the header that is visible with zero tasks and with many tasks",
+        "Clicking Create opens a dialog with a Title field, Description field, Create/Save and Cancel buttons",
+        "Submitting a valid title in the running app closes the dialog and shows the new task at the bottom of the list without a page reload",
+        "With existing tasks A, B and a new task C created, the rendered order is A, B, C",
+        "Creating the first task replaces the 'No tasks yet. Click Create to add one.' empty-state text with the task row",
+        "After the modal closes (via submit, Cancel or Esc), focus is on the Create button",
+        "Cancel or Esc closes the dialog and the list is unchanged",
+        "The Create button has computed styling of #2563EB background, white text, 8px border-radius and 40px height"
+      ]
+    },
+    {
+      "name": "Create Flow Vitest Suite",
+      "tool": "Vitest + React Testing Library + user-event",
+      "priority": "P0",
+      "skill_id": "SKILL_006",
+      "testcases": [],
+      "capability": "Adds Vitest and React Testing Library tests with mocked fetch covering Modal accessibility, validation, cancel/Esc, focus trap/return, and ordering A, B, C.",
+      "dependencies": [
+        "SKILL_005"
+      ],
+      "prompt_template": "You are writing the test suite for the Create Task modal flow using the repo's existing Vitest and React Testing Library setup, with fetch mocked (no real network). Cover: empty and whitespace-only title shows 'Title is required' and sends no request; over-length title (101) and description (501) show UI messages and send no request; valid submit POSTs once, closes the dialog and appends the task; Cancel and Esc close with no POST; Tab/Shift+Tab focus trap and focus returned to the Create button; and ordering where existing A, B plus a newly created C render in order A, B, C. Render the real App/header+list composition so the tests prove the Create button is actually mounted and reachable. Keep tests deterministic, using the same naming and structure style as the existing task list tests.",
+      "acceptance_criteria": [
+        "npm test (vitest run) passes with all new tests included",
+        "A test asserts 'Title is required' appears for empty and whitespace-only titles and that the fetch mock was not called with POST",
+        "A test asserts over-length title and description messages appear and no POST is sent",
+        "A test asserts that Esc and Cancel close the dialog with no POST request",
+        "A test asserts Tab and Shift+Tab wrap focus within the dialog and that focus returns to the Create button after close",
+        "A test renders the full app with tasks A and B, creates C via the Create button, and asserts DOM order A, B, C",
+        "A test asserts the 'Title is required' error lives in an aria-live='polite' region"
+      ]
+    }
+  ],
+  "metadata": {
+    "epic_key": "SCRUM-257",
+    "prd_title": "PRD - task-board",
+    "generated": "2026-10-28T07:35:58.285131Z",
+    "total": 6,
+    "p0_count": 6,
+    "p1_count": 0,
+    "p2_count": 0
+  }
+}
