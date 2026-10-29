@@ -35,7 +35,7 @@ Before declaring a task done, run the relevant tests and linters for every area 
 
 ## Backend Conventions
 
-- Use an app factory (`create_app()`) that registers routers, exception handlers, and a health endpoint. Keep routers in `APIRouter` modules; keep `main`/factory wiring thin.
+- Use an app factory (`create_app()`) that registers routers, exception handlers, and a health endpoint. Keep routers in `APIRouter` modules; keep `main`/factory wiring thin. The factory lives in `backend/app/main.py` (`backend/main.py` re-exports `app`/`create_app` for `uvicorn backend.app.main:app`); it is the single place `CORSMiddleware` is registered, reading `FRONTEND_ORIGIN` at call time — never add a second `add_middleware(CORSMiddleware, ...)` call elsewhere.
 - Pydantic v2 only: use `model_validate`, `model_dump`, `field_validator`, and `ConfigDict`. Do not use v1 APIs (`.dict()`, `@validator`, `class Config`).
 - Keep separate schemas for create, update, and read. Validate at the boundary (title required and non-empty after trimming, length limits, `completed` optional boolean defaulting to false).
 - Access the repository only through a dependency provider (`Depends(...)`) so tests can override it. Routes never touch the dict or the lock directly.

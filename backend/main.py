@@ -1,10 +1,5 @@
-"""FastAPI application entrypoint."""
+"""FastAPI application entrypoint (re-exports the app factory)."""
 
-from fastapi import FastAPI
+from backend.app.main import app, create_app
 
-app = FastAPI(title="task-board")
-
-
-@app.get("/api/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+__all__ = ["app", "create_app"]
