@@ -3,3 +3,11 @@
 # Each case is tagged with the skill_id/epic_key it belongs to.
 version: 1
 cases:
+  - name: "covers: Unsetting FRONTEND_ORIGIN does not crash app creation and yields no wildcard CORS"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-5"
+    module: "backend/app/main.py"
+    export: "create_app"
+    args: []
+    expect: { type: "FastAPI" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
