@@ -91,3 +91,11 @@ cases:
     export: "TaskCreate.model_validate"
     args: [{"title": " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "}]
     expect: { contains: {"title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: Rendering TaskRow with title 'Buy milk' and no description shows the text 'Buy milk' and no description element"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-256"
+    module: "frontend/src/components/TaskRow.tsx"
+    export: "TaskRow"
+    args: [{"title": "Buy milk"}]
+    expect: { contains: "Buy milk" }  # auto-corrected by spec_autofix (proactive_spec_generated)
