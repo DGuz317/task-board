@@ -8,10 +8,10 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 
 from ..dependencies import get_task_repository
-from ..schemas.task import Task, TaskCreate
+from ..schemas.task import Task, TaskCreate, TaskUpdate
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -28,3 +28,19 @@ def list_tasks(repo: TaskRepositoryDep) -> list[Task]:
 def create_task(data: TaskCreate, repo: TaskRepositoryDep) -> Task:
     """Create a task and return it, including the server-generated id and created_at."""
     return repo.create(data)
+
+
+@router.put("/{task_id}", response_model=Task, status_code=status.HTTP_200_OK)
+def update_task(task_id: str, data: TaskUpdate, repo: TaskRepositoryDep) -> Task:
+    """Update a task's title/description in place, keeping its id, position,
+    and created_at unchanged. Raises `TaskNotFoundError` (-> 404) for an
+    unknown id, translated by the shared exception handler."""
+    return repo.update(task_id, data)
+
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(task_id: str, repo: TaskRepositoryDep) -> Response:
+    """Delete a task without reordering the rest. Raises `TaskNotFoundError`
+    (-> 404) for an unknown id, translated by the shared exception handler."""
+    repo.delete(task_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
