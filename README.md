@@ -96,6 +96,22 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
+## Continuous Integration
+
+`.github/workflows/ci.yml` runs on every push and pull request with two
+independent jobs:
+
+- `backend` (Python 3.11): `pip install -r backend/requirements.txt`, then
+  `ruff check .` and `ruff format --check .` (run from `backend/`), then
+  `pytest` (from the repo root, honoring `pytest.ini`).
+- `frontend` (Node 20): `npm ci`, then `npm run lint`, `npm run format:check`,
+  `npm test`, and `npm run build` (all from `frontend/`).
+
+These mirror the local commands in the Backend setup and Frontend setup
+sections above. Playwright end-to-end execution is deliberately excluded
+from this workflow and gated separately by the `[QA]` epic's own
+quality-gates workflow.
+
 ## Vercel deployment
 
 Import this repository as one Vercel project with the project Root Directory
