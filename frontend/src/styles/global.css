@@ -21,10 +21,21 @@ select {
   font-size: inherit;
 }
 
-button {
+button,
+a {
   min-height: var(--touch-target-min);
   min-width: var(--touch-target-min);
   cursor: pointer;
+}
+
+a {
+  display: inline-flex;
+  align-items: center;
+}
+
+input:not([type="checkbox"]):not([type="radio"]) {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
 }
 
 :focus-visible {
@@ -34,8 +45,9 @@ button {
 
 .container {
   max-width: var(--container-max);
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-4);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+  padding-block: var(--space-6);
 }
 
 .muted {
