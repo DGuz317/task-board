@@ -156,6 +156,118 @@ describe("TaskList", () => {
     expect(sourceJsx).not.toMatch(/spinner/i);
   });
 
+  it("renders list items in API order for tasks with ids 1, 2, 3", async () => {
+    const numericIdTasks = [
+      {
+        id: 1,
+        title: "Task One",
+        description: "",
+        created_at: "2024-01-01T00:00:00Z",
+      },
+      {
+        id: 2,
+        title: "Task Two",
+        description: "",
+        created_at: "2024-01-02T00:00:00Z",
+      },
+      {
+        id: 3,
+        title: "Task Three",
+        description: "",
+        created_at: "2024-01-03T00:00:00Z",
+      },
+    ];
+    fetch.mockResolvedValue(jsonResponse(numericIdTasks));
+
+    render(<TaskList />);
+
+    const items = await waitFor(() => {
+      const found = screen.getAllByRole("listitem");
+      expect(found).toHaveLength(3);
+      return found;
+    });
+
+    expect(items[0].textContent).toContain("Task One");
+    expect(items[1].textContent).toContain("Task Two");
+    expect(items[2].textContent).toContain("Task Three");
+  });
+
+  it("shows the description for a task that has one and renders no description element for a task with an empty description", async () => {
+    const tasks = [
+      {
+        id: "with-desc",
+        title: "Has description",
+        description: "Some details",
+        created_at: "2024-01-01T00:00:00Z",
+      },
+      {
+        id: "no-desc",
+        title: "No description",
+        description: "",
+        created_at: "2024-01-02T00:00:00Z",
+      },
+    ];
+    fetch.mockResolvedValue(jsonResponse(tasks));
+
+    render(<TaskList />);
+
+    const items = await waitFor(() => {
+      const found = screen.getAllByRole("listitem");
+      expect(found).toHaveLength(2);
+      return found;
+    });
+
+    expect(screen.getByText("Some details")).toBeInTheDocument();
+    expect(items[0].querySelector(".task-row__description")).not.toBeNull();
+    expect(items[1].querySelector(".task-row__description")).toBeNull();
+  });
+
+  it("renders an HTML-looking title as literal text without creating an element", async () => {
+    fetch.mockResolvedValue(
+      jsonResponse([
+        {
+          id: "xss",
+          title: "<b>x</b>",
+          description: "",
+          created_at: "2024-01-01T00:00:00Z",
+        },
+      ]),
+    );
+
+    const { container } = render(<TaskList />);
+
+    expect(await screen.findByText("<b>x</b>")).toBeInTheDocument();
+    expect(container.querySelector("b")).toBeNull();
+  });
+
+  it("re-fetches and reflects new data after unmount and re-render", async () => {
+    fetch.mockResolvedValueOnce(jsonResponse(sampleTasks));
+
+    const { unmount } = render(<TaskList />);
+
+    await waitFor(() =>
+      expect(screen.getAllByRole("listitem")).toHaveLength(3),
+    );
+    unmount();
+
+    const updatedTasks = [
+      {
+        id: "d",
+        title: "Fourth",
+        description: "",
+        created_at: "2024-01-04T00:00:00Z",
+      },
+    ];
+    fetch.mockResolvedValueOnce(jsonResponse(updatedTasks));
+
+    render(<TaskList />);
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText("Fourth")).toBeInTheDocument();
+    expect(screen.queryByText("Second")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+  });
+
   it("lays rows out with an 8px gap and no bullets, resolved through a design token", () => {
     const rule = sourceCss.match(/\.task-list\s*\{([^}]*)\}/)?.[1] ?? "";
     expect(rule).toMatch(/list-style:\s*none/);
