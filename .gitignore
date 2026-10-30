@@ -25,6 +25,7 @@ dist/
 frontend/node_modules/
 frontend/dist/
 frontend/.env.local
+.vercel/
 
 # Test artifacts
 playwright-report/

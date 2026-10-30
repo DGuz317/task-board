@@ -10,9 +10,9 @@ from __future__ import annotations
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.config import Settings, get_settings
-from backend.app.errors import register_exception_handlers
-from backend.app.routers.health import router as health_router
+from .config import Settings, get_settings
+from .errors import register_exception_handlers
+from .routers.health import router as health_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

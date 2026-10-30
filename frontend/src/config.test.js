@@ -21,11 +21,19 @@ describe("normalizeBaseUrl", () => {
   });
 
   it("falls back to the default when given an empty string", () => {
-    expect(normalizeBaseUrl("")).toBe("http://localhost:8000/api");
+    expect(normalizeBaseUrl("")).toBe("/api");
   });
 
   it("falls back to the default when given undefined", () => {
-    expect(normalizeBaseUrl(undefined)).toBe("http://localhost:8000/api");
+    expect(normalizeBaseUrl(undefined)).toBe("/api");
+  });
+
+  it("uses the default for whitespace-only values", () => {
+    expect(normalizeBaseUrl("   ")).toBe("/api");
+  });
+
+  it("preserves a relative API prefix and removes trailing slashes", () => {
+    expect(normalizeBaseUrl(" /api/// ")).toBe("/api");
   });
 });
 
@@ -44,6 +52,6 @@ describe("API_BASE_URL module export", () => {
   it("falls back to the default when VITE_API_BASE_URL is unset", async () => {
     vi.stubEnv("VITE_API_BASE_URL", "");
     const { API_BASE_URL } = await import("./config.js");
-    expect(API_BASE_URL).toBe("http://localhost:8000/api");
+    expect(API_BASE_URL).toBe("/api");
   });
 });
