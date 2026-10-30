@@ -1,0 +1,635 @@
+{
+  "addons": [
+    "caveman",
+    "ponytail"
+  ],
+  "artifacts": {
+    ".claude/skills/cavecrew/README.md": {
+      "baseline": null,
+      "installed_sha256": "42e9972951719548b83402c726e8c07a01305e609c3d49626d1cab7dc5af7315",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/cavecrew/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "534c0a70d4c7728815214a11e80e66cecbd2104f905f96414e6e32504381c002",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-commit/README.md": {
+      "baseline": null,
+      "installed_sha256": "a2e82924b487fc1845114c247b47c2d3c2d1bd60f90bbfa60e9831319eb964fa",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-commit/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "c788a282fc75b981b421dfdad5d84ea7f83f946c126daa39cfc7d3f97845e193",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/README.md": {
+      "baseline": null,
+      "installed_sha256": "896a03bc3f2c3220aecab1892a611ec5edefaab047e8a39c498ce8c0197efa8e",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/SECURITY.md": {
+      "baseline": null,
+      "installed_sha256": "4586c95df9227f3f1d7efdced361197aa8ad7ed33056c78a789ce42f10287bb0",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "dd5388f085316f9f6a8b34ad906441023033596f8ac1d63b81fb20e8d3f50283",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/scripts/__init__.py": {
+      "baseline": null,
+      "installed_sha256": "429c3e1c5cc5b9705f28d77f303c728304ae68693913ad3d5ce9b5a44c8ee40f",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/scripts/__main__.py": {
+      "baseline": null,
+      "installed_sha256": "6d8b7d7846a845059d7a3107143f11131f63c5511d669b44085b15ec5e3d2279",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/scripts/benchmark.py": {
+      "baseline": null,
+      "installed_sha256": "6ff5098db623154161503595e3ef513516d1d47bed7c264c7e0378581945767b",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/scripts/cli.py": {
+      "baseline": null,
+      "installed_sha256": "da00e6e790232ff470761ab88749f42f753b42630c9b46360e3c56166c5355e9",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/scripts/compress.py": {
+      "baseline": null,
+      "installed_sha256": "c150739658059f532262e1e1fd428e6e862de1b464ac8474a4d5e02b076fd70e",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/scripts/detect.py": {
+      "baseline": null,
+      "installed_sha256": "8dbdce1df5b6ccb049cd2c84b16f3409ac5551abb9fbc07ddd1616393b78b8f5",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-compress/scripts/validate.py": {
+      "baseline": null,
+      "installed_sha256": "c80a080825b2f65da13704e605892fd29f4b635e84f3b136b4702d0a03ed1eea",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-discover/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "0483d17fce14ca5bbfcf1e085c180412dc20a672f5e8e4171fd0bbbb6f42b81a",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-evidence-review/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "05bd896c76a41918fe7b87113dabe852117727a579a7e445891aa41391ed57c2",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-explore/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "908f504ce45f5f8517ac7b64dc89fef57c4519d26f92b0b1843febf4b6fe2ac8",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-explore/package.json": {
+      "baseline": null,
+      "installed_sha256": "ab6c6186b9b87d4a68183625d23ef422e05e99aeab9228cac2924fc5391dc7a6",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-explore/tests/skill-file.test.mjs": {
+      "baseline": null,
+      "installed_sha256": "dad62b37f948351424438b3ae272e8b4c8462a78b5ace86ded9f0f7d136edb5c",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-help/README.md": {
+      "baseline": null,
+      "installed_sha256": "b88d5e36dfab3a681f52d6b4bfcdbe188aebd2ef9decf7f58b025a75867810e3",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-help/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "0bf9ee3fc8a9258b2d5f6b8bf24ac21f0bf2e4b9b4641dbc426b74f18186f81d",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-learn/CLAUDE.md": {
+      "baseline": null,
+      "installed_sha256": "d954541f8cd9805a5ffaa3b0e078109f355067795b129e7c01071a94fd7ca700",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-learn/README.md": {
+      "baseline": null,
+      "installed_sha256": "ddfc56c25014003ef38de2e15fb712872183ab16c05db47aa342e775b13d3fe4",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-learn/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "05e803e8024786b4abf78cb89ccbd6aa3834a042f398fc84a69f5652368b2d0a",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-learn/package.json": {
+      "baseline": null,
+      "installed_sha256": "8a6b98d06c1b12a7b0378a33f16d12432095bc80526338b7d0bb42f3ccd734f9",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-learn/tests/index.js": {
+      "baseline": null,
+      "installed_sha256": "93e0e2e9f6f2ec9ebf0c1ef494ecc0a083f82317aca074e20a1b0b2e50da2e05",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-learn/tests/skill-file.test.mjs": {
+      "baseline": null,
+      "installed_sha256": "9b6ea9cebe98cb24ce29e0f2a55f0af9cd272655a26c482967dc8fb4fff0cbfe",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-manage/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "3404a3c8651d63b6a7c02ccda17fcb4fca2489e931bb814580979a9ff548a48e",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-optimize/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "93f391beb93198b5bf9c0c21bc8b7b194e57cb7855fbf05384a4a5d6dd8c06cb",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-review/README.md": {
+      "baseline": null,
+      "installed_sha256": "a06403b2722a069a9a2b0011772ae73296e68b4e46ace2f4b42b4ea546052b64",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-review/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "599330563f19b5c59c3efddffcd7e8d9098b74c29817ab422ccd3253b103fcb8",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-setup/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "42c8b8eeba19c6d4ffd3c421be60a7e8b5c0e5108fd4496f0be3c7ced90bfd5f",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-stats/README.md": {
+      "baseline": null,
+      "installed_sha256": "a6d778cf6dd8382b7c27695aa57e5d2d70e93c5b326347f6c17162f56cddbfd6",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman-stats/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "4632f1611a56483df7851a0dabcc1e0c1952393cd8f5d08ddeda17f81a4e1e50",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman/README.md": {
+      "baseline": null,
+      "installed_sha256": "e8b22f37ccb204bd00cdf98c723c0df37aeda1f5863e9ad1d634f5c839d99e5d",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/caveman/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "415d43518f2b1a9498c15a445d4657117b129ee5e81b19454ce348439cc6672b",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/investigate-first/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "7cc19dd2fc457eb20d65c44dee4d1b72dcdfcd1617182f5bff666700f2a055d8",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/investigate-first/agents/openai.yaml": {
+      "baseline": null,
+      "installed_sha256": "9836c3e7e71564810abb1eeb66341e8ef180c457d4e121fe772cbf53e41a9268",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/lean-build/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "4d498073c6312858b220e9a04b7456c2485c734edb077f6bb17d88a7ed96ad7a",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/lean-build/agents/openai.yaml": {
+      "baseline": null,
+      "installed_sha256": "8eb3226d28dae6e1d301bee89919e1309574e41b871761155547b1b510500335",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/megacave/README.md": {
+      "baseline": null,
+      "installed_sha256": "abeda79940cf9368492e3376744b92e88d38700432b6b06da9125d98e6c25977",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/megacave/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "139105296c0686c1ee24610caca1db293ab84162beb0d94aa7a9ad7cbc3352bf",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/migration/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "fe7cf96a58b0521130fbb886dab2a326869d6ed0001e0306fd244014ba7a9662",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/migration/agents/openai.yaml": {
+      "baseline": null,
+      "installed_sha256": "ca7090ae9c9465fb7075eb650d530757bd73530437a02ae1ed22e41e3bf0ba79",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/ponytail-audit/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "2b3223a02c386d1263e1b08343cb8eb3a53e444cdafb1d79e26c8ec2a8fcad28",
+      "owner": "addon:ponytail"
+    },
+    ".claude/skills/ponytail-debt/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "b5ec2762f6ba8c4af9ea7173aa6c9f91b88655a25e43f9de0264f6ce8722b25f",
+      "owner": "addon:ponytail"
+    },
+    ".claude/skills/ponytail-gain/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "231034a896d6762e4b5c8468287083422c56b499119976ec9f76821f7d083090",
+      "owner": "addon:ponytail"
+    },
+    ".claude/skills/ponytail-help/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "86ab0ce0af70cbeeeef499d5c884873b393f87f86401dcc45553662ce2c1eff9",
+      "owner": "addon:ponytail"
+    },
+    ".claude/skills/ponytail-review/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "33fe4ebe22a460924e5d4a261e223df22e409cc94ab76182bee9fb91a3ef022e",
+      "owner": "addon:ponytail"
+    },
+    ".claude/skills/ponytail/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "9badd22a32e19cb884e46dfa8d3aae82bb81dfa5484105b8b4f0262df823a509",
+      "owner": "addon:ponytail"
+    },
+    ".claude/skills/safe-refactor/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "cd52867aba26aafb53379d43068cef9b2feca3a3fff850f877a99f710ccd02c0",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/safe-refactor/agents/openai.yaml": {
+      "baseline": null,
+      "installed_sha256": "df608465dc32de1926bfc91ea0beabe9bc61198c121ff1eef0d2e6d74dd67ac1",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/surgical-patch/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "81ea9f7b51409970099e04b98875dd65806cd35472f9a774b847030328187387",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/surgical-patch/agents/openai.yaml": {
+      "baseline": null,
+      "installed_sha256": "269d7ea7ce5a40499236f7b70d711727f5650a94686283b657076e3cbd56d92f",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/ultracave/README.md": {
+      "baseline": null,
+      "installed_sha256": "3f4138ddc07c08bb41946f96a41e4cee8800d979ed458d0eec35959686ea781a",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/ultracave/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "a8da5b0b3501b853e1b98f2ae09fe8dc9c0edf481b1d3fa9529f8557011c1ef8",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/verify-and-stop/SKILL.md": {
+      "baseline": null,
+      "installed_sha256": "3d5599f49771b864eba94f27f456fda295c48c1a37fa6ba2f65fdcb13cc32acb",
+      "owner": "addon:caveman"
+    },
+    ".claude/skills/verify-and-stop/agents/openai.yaml": {
+      "baseline": null,
+      "installed_sha256": "9efaaae6ffe812827c1c70af326ebc58b75455f99512f11dc3afccd0298cb45d",
+      "owner": "addon:caveman"
+    },
+    ".mcp.json": {
+      "baseline": null,
+      "installed_sha256": "850337e5ce8f3e8a2e113e57d94f1b640fcefdb369bc1921c2a0294a955640e2",
+      "owner": "graph"
+    }
+  },
+  "client": "claude",
+  "clients": [
+    "claude"
+  ],
+  "completed_steps": [
+    "Install CodeGraph locally",
+    "Configure CodeGraph client",
+    "Initialize CodeGraph index",
+    "Install CodeGraph terminal command globally",
+    "Install Caveman skills (skills only)",
+    "Install Ponytail skills (skills only)",
+    "Activate integration instructions"
+  ],
+  "configured_clients": [
+    "claude"
+  ],
+  "extras": [],
+  "global_entries": {},
+  "graph": "codegraph",
+  "index": true,
+  "indexes": {
+    ".codegraph": {
+      "preexisting": false
+    }
+  },
+  "integration_instructions": {
+    "CLAUDE.md": {
+      "addons": [
+        "caveman",
+        "ponytail"
+      ],
+      "clients": [
+        "claude"
+      ],
+      "codegraph": false,
+      "content": "\n<!-- BEGIN ADL TOOLKIT INTEGRATIONS -->\n## ADL Toolkit integrations\n\nThe selected integrations are active by default.\n\n- For responses, load and follow only `.claude/skills/caveman/SKILL.md` from the Caveman package. Keep every technical fact needed for correctness, debugging, validation, and review.\n\n- For source-code work, load and follow only `.claude/skills/ponytail/SKILL.md` in full mode. Preserve correctness, security, validation, tests, data integrity, accessibility, and explicit user requirements.\n\nAny clear user request to disable Caveman, Ponytail, or all integrations overrides these defaults without requiring an exact phrase. Keep that choice for the current conversation until the user clearly re-enables it.\n<!-- END ADL TOOLKIT INTEGRATIONS -->\n",
+      "file_preexisting": true,
+      "path": "CLAUDE.md"
+    }
+  },
+  "lock": {
+    "entries": {
+      "cavecrew": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "2e122d819a812bef0e4958706f306e4346e78ecb5a4893997b99cbc19866f514",
+          "skillPath": "skills/cavecrew/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "71b600c88c8d1d36f18c4875db23b53c5d6cb9ba3195e19451d6b1bb67db07c4",
+          "skillPath": "skills/caveman/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-commit": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "b416cf134b0f33ddadeca7977aebdbb2d3db79a166d0fce2e1aabeec98132766",
+          "skillPath": "skills/caveman-commit/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-compress": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "9c8d35882a93e387a584cc4efaacb74433d379a2bd02e3e6f6ad4f7c30ff55ed",
+          "skillPath": "skills/caveman-compress/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-discover": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "6850e0ca7bd7a35a1f447cbd342f91b76ece1fb2e3473ad894e51e69746df8a2",
+          "skillPath": "skills/caveman-discover/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-evidence-review": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "6a2db0191082500739416c87ff896a7894f98aa867f15c70fe932e4d72edd327",
+          "skillPath": "skills/caveman-evidence-review/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-explore": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "6e89d5fef24957b921cf021d5bb392c47185ed65233db783acef64a9228dbb1b",
+          "skillPath": "skills/caveman-explore/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-help": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "c7a73a8c6afb6f871690666449209106aba847b4a9b0698686648960ece80012",
+          "skillPath": "skills/caveman-help/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-learn": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "df046a04f93e61061082652f0e1b44a3dd81709b35f384b0e243a4fb630a03fb",
+          "skillPath": "skills/caveman-learn/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-manage": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "fdd3834941a8a576cae0ac96a38dfec6ac4bd26ef209ba9997468ca11aaf19f4",
+          "skillPath": "skills/caveman-manage/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-optimize": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "5e859a3a8305b5559b2f528616f634324449a426054704d43ef0b6ec8c1d9807",
+          "skillPath": "skills/caveman-optimize/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-review": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "36a4007c5c0c6b90b5accfee1cd769a86e4963b651dece2ce5f17a223a0abb4b",
+          "skillPath": "skills/caveman-review/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-setup": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "b12b9f8f3fe6b499334a4b319ae1a16aa2da5c2d11e5bc85efd3236eac5213aa",
+          "skillPath": "skills/caveman-setup/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "caveman-stats": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "cc9fcd21f2a30cff5596b3cbb197fe0f4b1b30b58084a864350853c217ad301a",
+          "skillPath": "skills/caveman-stats/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "investigate-first": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "59b581b5abfc0e19b7dd5a7c3bb2b16621ab5e94e085065c7b724a9c86cc3d4d",
+          "skillPath": "skills/investigate-first/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "lean-build": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "6074721f1653e6e9d6381595b094284807b8d5d001d7d3977ec534679b16a63c",
+          "skillPath": "skills/lean-build/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "megacave": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "60da384ce09cedf553e2b6dfe4669ffb4e53f34c3df8ce2c8012a32e06f8e187",
+          "skillPath": "skills/megacave/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "migration": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "7348b2d21ca05bdecc1e4ec2c8b63515ccb1700c8a261fdbd458b04b7383945b",
+          "skillPath": "skills/migration/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "ponytail": {
+        "addon": "ponytail",
+        "baseline": null,
+        "installed": {
+          "computedHash": "061f887d9e3e735f85db3be3655a8936a00f24d5fb65ac4ab74a968a770fe342",
+          "skillPath": "skills/ponytail/SKILL.md",
+          "source": "DietrichGebert/ponytail",
+          "sourceType": "github"
+        }
+      },
+      "ponytail-audit": {
+        "addon": "ponytail",
+        "baseline": null,
+        "installed": {
+          "computedHash": "1d718f893dabc01caad0dacef86444b5b4b3e1e59409527d66e8b5dd0cd85ae0",
+          "skillPath": "skills/ponytail-audit/SKILL.md",
+          "source": "DietrichGebert/ponytail",
+          "sourceType": "github"
+        }
+      },
+      "ponytail-debt": {
+        "addon": "ponytail",
+        "baseline": null,
+        "installed": {
+          "computedHash": "f5d1d2ab891ff0a650a90b67235e487828e7d2a189de08a1ae073032de379407",
+          "skillPath": "skills/ponytail-debt/SKILL.md",
+          "source": "DietrichGebert/ponytail",
+          "sourceType": "github"
+        }
+      },
+      "ponytail-gain": {
+        "addon": "ponytail",
+        "baseline": null,
+        "installed": {
+          "computedHash": "fca2297cf7b5fd26692f6bd94d398b522e19fa81ad6e2aaebf1933575f7a6803",
+          "skillPath": "skills/ponytail-gain/SKILL.md",
+          "source": "DietrichGebert/ponytail",
+          "sourceType": "github"
+        }
+      },
+      "ponytail-help": {
+        "addon": "ponytail",
+        "baseline": null,
+        "installed": {
+          "computedHash": "4582025c3923072fb6c35b8cbd75adf4f7ce47df0eff43cc9a2a39808537fd61",
+          "skillPath": "skills/ponytail-help/SKILL.md",
+          "source": "DietrichGebert/ponytail",
+          "sourceType": "github"
+        }
+      },
+      "ponytail-review": {
+        "addon": "ponytail",
+        "baseline": null,
+        "installed": {
+          "computedHash": "800dc0c86402978e12359f701b9e0c81ba4607a0cd0027f4596d0f835a67eadc",
+          "skillPath": "skills/ponytail-review/SKILL.md",
+          "source": "DietrichGebert/ponytail",
+          "sourceType": "github"
+        }
+      },
+      "safe-refactor": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "9df34a21a7a2c18ce13dbbe4a3f66b4e91df9e4bc33c1c9da8a80261583367ec",
+          "skillPath": "skills/safe-refactor/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "surgical-patch": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "028b9c3574142d19639d9f8eb11fbb01c58479f8f441e957d598a7215e79f95d",
+          "skillPath": "skills/surgical-patch/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "ultracave": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "d2e5de7e5e664e95c0c93ea0fb84c6b78a4bb2351c71964c453a8a35c63869eb",
+          "skillPath": "skills/ultracave/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      },
+      "verify-and-stop": {
+        "addon": "caveman",
+        "baseline": null,
+        "installed": {
+          "computedHash": "3d67de16a2b3c48b643bc511ebc4cb86e6c7105215d8428b6140cbcb73aba4e6",
+          "skillPath": "skills/verify-and-stop/SKILL.md",
+          "source": "JuliusBrussee/caveman",
+          "sourceType": "github"
+        }
+      }
+    },
+    "preexisting": false
+  },
+  "package": null,
+  "runtimes": {
+    ".adl-toolkit/codegraph": {
+      "preexisting": false
+    }
+  },
+  "version": 1
+}

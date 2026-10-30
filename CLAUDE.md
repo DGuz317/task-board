@@ -113,3 +113,15 @@ Every UI change must follow this visual language. Do not ship unstyled native el
 - Keep CI workflows additive and fast. Do not change the lint/format baseline settings without being asked.
 - If a requirement is ambiguous or conflicts with this file, follow the task's explicit instructions, then keep the rest consistent with this document, and note the assumption in your final summary.
 - In your final summary, state what changed, which tests and linters you ran with their results, and anything you skipped or could not verify.
+
+<!-- BEGIN ADL TOOLKIT INTEGRATIONS -->
+## ADL Toolkit integrations
+
+The selected integrations are active by default.
+
+- For responses, load and follow only `.claude/skills/caveman/SKILL.md` from the Caveman package. Keep every technical fact needed for correctness, debugging, validation, and review.
+
+- For source-code work, load and follow only `.claude/skills/ponytail/SKILL.md` in full mode. Preserve correctness, security, validation, tests, data integrity, accessibility, and explicit user requirements.
+
+Any clear user request to disable Caveman, Ponytail, or all integrations overrides these defaults without requiring an exact phrase. Keep that choice for the current conversation until the user clearly re-enables it.
+<!-- END ADL TOOLKIT INTEGRATIONS -->
