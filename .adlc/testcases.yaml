@@ -67,3 +67,27 @@ cases:
     export: "TaskCreate"
     args: [{"title": "x", "id": "abc"}]
     expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: Tests assert description lengths 0 and 500 are valid and 501 is invalid for both input models"
+    kind: "testcase"
+    skill_id: "SKILL_004"
+    epic_key: "SCRUM-254"
+    module: "tests/test_schema_validation_boundaries.py"
+    export: "TaskCreate"
+    args: [{"title": "valid title", "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+    expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: Tests assert whitespace-only titles ('   ', '\\t\\n') are rejected and padded titles are trimmed"
+    kind: "testcase"
+    skill_id: "SKILL_004"
+    epic_key: "SCRUM-254"
+    module: "tests/test_schema_validation_boundaries.py"
+    export: "TaskCreate"
+    args: [{"title": "   "}]
+    expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: Tests assert a title of 100 chars plus surrounding spaces is valid because trimming happens before the length ch"
+    kind: "testcase"
+    skill_id: "SKILL_004"
+    epic_key: "SCRUM-254"
+    module: "tests/test_schema_validation_boundaries.py"
+    export: "TaskCreate.model_validate"
+    args: [{"title": " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "}]
+    expect: { contains: {"title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
