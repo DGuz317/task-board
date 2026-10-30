@@ -4,7 +4,9 @@ function BoardListPage() {
   return (
     <section>
       <h2>Boards</h2>
-      <TaskList />
+      <div className="task-list-region" data-testid="task-list-region">
+        <TaskList />
+      </div>
     </section>
   );
 }
