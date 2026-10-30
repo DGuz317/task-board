@@ -1,5 +1,38 @@
 # task-board
 
+## Development
+
+Copy the root `.env.example` to `.env` (gitignored; never commit it) and
+adjust values if needed, then start each service with its single command
+from the repo root:
+
+```bash
+cp .env.example .env
+npm run dev:backend   # uvicorn, reload, http://localhost:8000
+npm run dev:frontend  # Vite dev server, http://localhost:5173
+```
+
+- Backend health check: `GET http://localhost:8000/api/health` -> `200`.
+- Frontend app shell: `http://localhost:5173`.
+
+Both scripts fall back to `.env.example`'s placeholder values when no `.env`
+is present, so they also work unconfigured.
+
+### VITE_API_BASE_URL contract
+
+`VITE_API_BASE_URL` is the single source of truth for where the frontend
+sends API requests. It is an absolute URL **including** the `/api` prefix
+and with **no trailing slash**, e.g. `http://localhost:8000/api`. The
+frontend builds every request as `${VITE_API_BASE_URL}/<resource>` (for
+example `/tasks` resolves to `http://localhost:8000/api/tasks`) and never
+re-adds or strips the `/api` prefix itself. `VITE_API_URL` is not used
+anywhere in this repo — only `VITE_API_BASE_URL`.
+
+With both dev commands running and `.env.example`'s values applied, the
+backend's CORS allowlist (driven by `FRONTEND_ORIGIN`) permits requests from
+`http://localhost:5173`, so a fetch to `${VITE_API_BASE_URL}/health` from the
+frontend origin succeeds.
+
 ## Layout
 
 - `backend/` — FastAPI app (`main.py`), `db.py`, `models.py`, `tests/`
