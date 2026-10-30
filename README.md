@@ -38,6 +38,20 @@ separately, set `VITE_API_BASE_URL` (see `frontend/.env.example`) to the
 backend's base URL including `/api`, e.g. `http://localhost:8000/api`.
 All API URLs are built from this single value via `frontend/src/config.js`.
 
+## End-to-end tests
+
+Playwright specs live in `frontend/e2e/`. `npm run test:e2e` (from
+`frontend/`) starts both the backend (uvicorn, on a dedicated port) and the
+frontend (Vite dev server, on a dedicated port) automatically via
+`playwright.config.js`'s `webServer` entries, so nothing needs to be running
+beforehand. Install the browser once per machine:
+
+```bash
+cd frontend
+npx playwright install --with-deps chromium
+npm run test:e2e
+```
+
 ## Vercel deployment
 
 Import this repository as one Vercel project with the project Root Directory
