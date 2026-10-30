@@ -9,6 +9,14 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse
 
 
+class TaskNotFoundError(Exception):
+    """Raised by the task repository when an id does not match a stored task."""
+
+    def __init__(self, task_id: str) -> None:
+        self.task_id = task_id
+        super().__init__(f"Task {task_id!r} not found")
+
+
 async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     return JSONResponse(
         {"detail": exc.detail},
