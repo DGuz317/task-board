@@ -19,3 +19,11 @@ cases:
     export: "normalizeBaseUrl"
     args: ["http://localhost:8000/api/"]
     expect: { equals: "http://localhost:8000/api" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: ESLint config enables eslint-plugin-react-hooks rules-of-hooks"
+    kind: "testcase"
+    skill_id: "SKILL_007"
+    epic_key: "SCRUM-5"
+    module: "frontend/eslint.config.js"
+    export: "default"
+    args: []
+    expect: { contains: {"react-hooks/rules-of-hooks": "error"} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion

@@ -1,0 +1,6 @@
+target-version = "py311"
+line-length = 100
+extend-exclude = [".venv", "__pycache__"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]

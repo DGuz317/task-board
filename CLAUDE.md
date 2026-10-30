@@ -29,7 +29,7 @@ Check `package.json`, the dev scripts, and any Makefile for the exact names befo
 - Frontend dev / build / preview: `npm run dev`, `npm run build`, `npm run preview`
 - Frontend tests: `npm test` (Vitest; use run mode, not watch, in non-interactive contexts)
 - E2E: `npx playwright test` (the Playwright `webServer` starts the backend and the built frontend via `vite preview`)
-- Lint / format: use the configured linters and formatters for both sides; run them before finishing a task.
+- Lint / format: `cd backend && ruff check . && ruff format --check .`; `cd frontend && npm run lint && npm run format:check` (use `ruff format .` / `npm run format` to fix). Run these before finishing a task.
 
 Before declaring a task done, run the relevant tests and linters for every area you touched, and report failures honestly with their output.
 

@@ -14,6 +14,14 @@ pip install -r backend/requirements.txt
 python -m pytest
 ```
 
+Lint and format-check the backend with:
+
+```bash
+cd backend
+ruff check .
+ruff format --check .
+```
+
 Run the dev server with `uvicorn backend.app.main:app --reload`. The API is
 mounted under `/api` (e.g. `GET /api/health`); interactive docs are served at
 `/api/docs` (Swagger UI) and `/api/redoc` (ReDoc), with the OpenAPI schema at
@@ -31,6 +39,9 @@ npm install
 npm run dev     # start the Vite dev server
 npm run build   # produce frontend/dist/
 npm test        # run Vitest (jsdom) once and exit
+npm run lint         # ESLint (flat config, react-hooks rules enabled)
+npm run format:check # Prettier --check
+npm run format       # Prettier --write
 ```
 
 The frontend defaults to same-origin `/api`. When running Vite and Uvicorn

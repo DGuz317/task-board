@@ -38,16 +38,34 @@ def test_requirements_pydantic_v2_or_newer():
 
 def test_requirements_resolve_without_installing():
     result = subprocess.run(  # noqa: PLW1510
-        [sys.executable, "-m", "pip", "install", "--dry-run", "-q",
-         "-r", str(ROOT / "backend/requirements.txt")],
-        capture_output=True, text=True, timeout=300,
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--dry-run",
+            "-q",
+            "-r",
+            str(ROOT / "backend/requirements.txt"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=300,
     )
     assert result.returncode == 0, result.stderr
 
 
 @pytest.mark.parametrize(
-    "path", [".env", "node_modules/x.js", "dist/a.js", "pkg/__pycache__/m.pyc",
-             "test.db", "a.sqlite", "b.sqlite3"],
+    "path",
+    [
+        ".env",
+        "node_modules/x.js",
+        "dist/a.js",
+        "pkg/__pycache__/m.pyc",
+        "test.db",
+        "a.sqlite",
+        "b.sqlite3",
+    ],
 )
 def test_gitignore_ignores(path):
     result = subprocess.run(  # noqa: PLW1510
@@ -73,7 +91,9 @@ def test_no_env_file_tracked():
 def test_import_db_and_models_from_repo_root():
     result = subprocess.run(  # noqa: PLW1510
         [sys.executable, "-c", "import backend.db, backend.models"],
-        cwd=ROOT, capture_output=True, text=True,
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
     )
     assert result.returncode == 0, result.stderr
     assert not list(ROOT.glob("*.sqlite")) and not list(ROOT.glob("*.db"))
