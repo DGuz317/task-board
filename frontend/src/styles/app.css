@@ -29,6 +29,13 @@
   text-decoration: underline;
 }
 
+.task-list-region {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-top: var(--space-6);
+}
+
 .error-boundary-fallback {
   margin-block: var(--space-6);
   padding: var(--space-6);

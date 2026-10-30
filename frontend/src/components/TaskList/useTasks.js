@@ -13,6 +13,10 @@ export function useTasks() {
   const mountedRef = useRef(true);
 
   useEffect(() => {
+    // StrictMode double-invokes this effect on mount (effect -> cleanup ->
+    // effect) in dev; resetting to true here undoes the cleanup's false so
+    // the component isn't permanently treated as unmounted.
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
     };
