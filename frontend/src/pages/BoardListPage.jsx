@@ -1,8 +1,10 @@
+import TaskList from "../components/TaskList/index.js";
+
 function BoardListPage() {
   return (
     <section>
       <h2>Boards</h2>
-      <p className="muted">No boards yet. The board list will appear here.</p>
+      <TaskList />
     </section>
   );
 }
