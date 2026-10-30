@@ -11,3 +11,11 @@ cases:
     export: "create_app"
     args: []
     expect: { type: "FastAPI" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: frontend/src/config.js exports API_BASE_URL derived from import.meta.env.VITE_API_BASE_URL with trailing slashes"
+    kind: "testcase"
+    skill_id: "SKILL_003"
+    epic_key: "SCRUM-5"
+    module: "frontend/src/config.js"
+    export: "normalizeBaseUrl"
+    args: ["http://localhost:8000/api/"]
+    expect: { equals: "http://localhost:8000/api" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion

@@ -21,3 +21,17 @@ mounted under `/api` (e.g. `GET /api/health`); interactive docs are served at
 Set `FRONTEND_ORIGIN` (see `backend/.env.example`) to the origin the Vite dev
 server runs on, e.g. `http://localhost:5173`. CORS allows only that exact
 origin; leaving it unset disables cross-origin requests (never a wildcard).
+
+## Frontend setup
+
+```bash
+cd frontend
+npm install
+npm run dev     # start the Vite dev server
+npm run build   # produce frontend/dist/
+npm test        # run Vitest (jsdom) once and exit
+```
+
+Set `VITE_API_BASE_URL` (see `frontend/.env.example`) to the backend's base
+URL including the `/api` prefix, e.g. `http://localhost:8000/api`. All API
+calls are built from this single value via `frontend/src/config.js`.
