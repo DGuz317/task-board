@@ -27,3 +27,43 @@ cases:
     export: "default"
     args: []
     expect: { contains: {"react-hooks/rules-of-hooks": "error"} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: TaskCreate(title='  Buy milk  ').title == 'Buy milk'"
+    kind: "testcase"
+    skill_id: "SKILL_001"
+    epic_key: "SCRUM-254"
+    module: "backend/app/schemas/task.py"
+    export: "TaskCreate"
+    args: [{"title": "  Buy milk  "}]
+    expect: { contains: {"title": "Buy milk"} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: TaskCreate(title='') and TaskCreate(title='   ') raise ValidationError"
+    kind: "testcase"
+    skill_id: "SKILL_001"
+    epic_key: "SCRUM-254"
+    module: "backend/app/schemas/task.py"
+    export: "TaskCreate"
+    args: [{"title": ""}]
+    expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: TaskCreate(title='x').description == ''"
+    kind: "testcase"
+    skill_id: "SKILL_001"
+    epic_key: "SCRUM-254"
+    module: "backend/app/schemas/task.py"
+    export: "TaskCreate"
+    args: [{"title": "x"}]
+    expect: { equals: "" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: TaskUpdate applies the identical title and description boundaries (title 1/100/101, description 0/500/501, white"
+    kind: "testcase"
+    skill_id: "SKILL_001"
+    epic_key: "SCRUM-254"
+    module: "backend/app/schemas/task.py"
+    export: "TaskUpdate"
+    args: [{"title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+    expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: TaskCreate ignores or rejects client-supplied 'id' and 'created_at' so they cannot be set from input"
+    kind: "testcase"
+    skill_id: "SKILL_001"
+    epic_key: "SCRUM-254"
+    module: "backend/app/schemas/task.py"
+    export: "TaskCreate"
+    args: [{"title": "x", "id": "abc"}]
+    expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
