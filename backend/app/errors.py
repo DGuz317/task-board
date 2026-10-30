@@ -25,6 +25,12 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
     )
 
 
+async def task_not_found_exception_handler(
+    request: Request, exc: TaskNotFoundError
+) -> JSONResponse:
+    return JSONResponse({"detail": str(exc)}, status_code=404)
+
+
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
@@ -42,5 +48,6 @@ def register_exception_handlers(app: FastAPI) -> None:
     """Register handlers so HTTPException, validation, and unhandled errors
     all return the same {"detail": ...} JSON shape."""
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+    app.add_exception_handler(TaskNotFoundError, task_not_found_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)
