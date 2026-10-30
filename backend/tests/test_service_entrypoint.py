@@ -21,8 +21,8 @@ def test_entrypoint_from_backend_service_root():
                 "response = client.get('/api/health'); "
                 "assert response.status_code == 200, response.text; "
                 "assert response.json() == {'status': 'ok'}; "
-                "assert client.get('/docs').status_code == 200; "
-                "assert client.get('/openapi.json').status_code == 200; "
+                "assert client.get('/api/docs').status_code == 200; "
+                "assert client.get('/api/openapi.json').status_code == 200; "
                 "assert client.get('/api/missing').status_code == 404"
             ),
         ],

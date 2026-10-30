@@ -16,7 +16,8 @@ python -m pytest
 
 Run the dev server with `uvicorn backend.app.main:app --reload`. The API is
 mounted under `/api` (e.g. `GET /api/health`); interactive docs are served at
-`/docs` and the OpenAPI schema at `/openapi.json`.
+`/api/docs` (Swagger UI) and `/api/redoc` (ReDoc), with the OpenAPI schema at
+`/api/openapi.json`.
 
 Set `FRONTEND_ORIGIN` (see `backend/.env.example`) to the origin the Vite dev
 server runs on, e.g. `http://localhost:5173`. CORS allows only that exact
@@ -46,9 +47,9 @@ set to the repository root. The root `vercel.json` builds two services:
 - `frontend`: the static Vite app in `frontend/`.
 
 Public requests to `/api` and `/api/*` go to the backend without stripping
-the prefix. `/docs`, `/docs/*`, `/redoc`, and `/openapi.json` also go to the
-backend so its existing documentation works. All remaining paths go to the
-frontend. Both services are public; there are no internal-only services.
+the prefix. Documentation lives under the same prefix at `/api/docs` and
+`/api/redoc`, with the schema at `/api/openapi.json`. All remaining paths go
+to the frontend. Both services are public; there are no internal-only services.
 
 There are no server-to-server calls, so no service bindings are needed.
 The frontend runs in the browser and uses the public `/api` route. Bindings
@@ -69,6 +70,6 @@ run all services together from the repository root:
 vercel dev
 ```
 
-Check `/`, `/api/health` (expect `{"status":"ok"}`), `/docs`, and
-`/openapi.json` on the URL printed by the CLI. An unknown `/api/*` path
+Check `/`, `/api/health` (expect `{"status":"ok"}`), `/api/docs`, `/api/redoc`,
+and `/api/openapi.json` on the URL printed by the CLI. An unknown `/api/*` path
 should return the backend's JSON 404 instead of the frontend HTML.

@@ -22,8 +22,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(
         title="task-board",
         version="0.1.0",
-        docs_url="/docs",
-        openapi_url="/openapi.json",
+        docs_url="/api/docs",
+        redoc_url="/api/redoc",
+        openapi_url="/api/openapi.json",
+        swagger_ui_oauth2_redirect_url="/api/docs/oauth2-redirect",
     )
 
     register_exception_handlers(app)
