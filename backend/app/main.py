@@ -1,6 +1,6 @@
 """FastAPI application factory.
 
-This is the single mount point for the API: feature routers (e.g. a future
+This is the single mount point for the API: feature routers (e.g. the
 /api/tasks router) must be included on the `/api` APIRouter created here, and
 CORSMiddleware must only ever be registered in this module.
 """
@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import Settings, get_settings
 from .errors import register_exception_handlers
 from .routers.health import router as health_router
+from .routers.tasks import router as tasks_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -32,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     api_router = APIRouter(prefix="/api")
     api_router.include_router(health_router)
+    api_router.include_router(tasks_router)
     app.include_router(api_router)
 
     allowed_origins = [settings.frontend_origin] if settings.frontend_origin else []
