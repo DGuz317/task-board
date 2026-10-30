@@ -32,3 +32,5 @@ playwright-report/
 test-results/
 blob-report/
 coverage/
+.vercel
+.env*
