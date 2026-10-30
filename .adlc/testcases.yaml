@@ -59,3 +59,11 @@ cases:
     export: "TaskUpdate"
     args: [{"title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
     expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: TaskCreate ignores or rejects client-supplied 'id' and 'created_at' so they cannot be set from input"
+    kind: "testcase"
+    skill_id: "SKILL_001"
+    epic_key: "SCRUM-254"
+    module: "backend/app/schemas/task.py"
+    export: "TaskCreate"
+    args: [{"title": "x", "id": "abc"}]
+    expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
