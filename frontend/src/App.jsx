@@ -1,9 +1,18 @@
+import { Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout.jsx";
+import BoardListPage from "./pages/BoardListPage.jsx";
+import BoardDetailPage from "./pages/BoardDetailPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+
 function App() {
   return (
-    <main id="app-root" data-testid="app-root" className="container">
-      <h1>Task Board</h1>
-      <p className="muted">The task board app shell is coming soon.</p>
-    </main>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<BoardListPage />} />
+        <Route path="boards/:id" element={<BoardDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
 
