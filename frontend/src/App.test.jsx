@@ -19,9 +19,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { name: "Task Board" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Boards" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Boards" })).toBeInTheDocument();
     expect(screen.queryByText(/vite \+ react/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/count is/i)).not.toBeInTheDocument();
 
@@ -51,8 +49,6 @@ describe("App", () => {
 
     await user.click(backLink);
 
-    expect(
-      screen.getByRole("heading", { name: "Boards" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Boards" })).toBeInTheDocument();
   });
 });

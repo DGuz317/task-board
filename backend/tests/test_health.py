@@ -28,9 +28,7 @@ def test_docs_oauth_callback_available(client_factory):
     assert client_factory().get("/api/docs/oauth2-redirect").status_code == 200
 
 
-@pytest.mark.parametrize(
-    "path", ["/docs", "/docs/oauth2-redirect", "/redoc", "/openapi.json"]
-)
+@pytest.mark.parametrize("path", ["/docs", "/docs/oauth2-redirect", "/redoc", "/openapi.json"])
 def test_documentation_only_available_under_api(client_factory, path):
     assert client_factory().get(path).status_code == 404
 
