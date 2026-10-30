@@ -51,3 +51,11 @@ cases:
     export: "TaskCreate"
     args: [{"title": "x"}]
     expect: { equals: "" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: TaskUpdate applies the identical title and description boundaries (title 1/100/101, description 0/500/501, white"
+    kind: "testcase"
+    skill_id: "SKILL_001"
+    epic_key: "SCRUM-254"
+    module: "backend/app/schemas/task.py"
+    export: "TaskUpdate"
+    args: [{"title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+    expect: { throws: "ValidationError" }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
