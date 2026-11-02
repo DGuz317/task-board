@@ -99,3 +99,51 @@ cases:
     export: "TaskRow"
     args: [{"title": "Buy milk"}]
     expect: { contains: "Buy milk" }  # auto-corrected by spec_autofix (proactive_spec_generated)
+  - name: "covers: validateTask({title:'',description:''}).errors.title === 'Title is required'"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "", "description": ""}]
+    expect: { contains: {"errors": {"title": "Title is required"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: validateTask({title:'   ',description:''}).errors.title === 'Title is required'"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "   ", "description": ""}]
+    expect: { contains: {"errors": {"title": "Title is required"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: validateTask({title:'  Buy milk  '}).values.title === 'Buy milk'"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "  Buy milk  "}]
+    expect: { contains: {"values": {"title": "Buy milk"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: A 100-character title yields no title error and a 101-character title yields a title error message"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+    expect: { contains: {"errors": {"title": "Title must be 100 characters or fewer"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: A 500-character description yields no error and a 501-character description yields a description error message"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "Buy milk", "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
+    expect: { contains: {"errors": {"description": "Description must be 500 characters or fewer"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: A missing/empty description is valid and yields no description error"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "Buy milk"}]
+    expect: { contains: {"isValid": true} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
