@@ -115,3 +115,11 @@ cases:
     export: "validateTask"
     args: [{"title": "   ", "description": ""}]
     expect: { contains: {"errors": {"title": "Title is required"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: validateTask({title:'  Buy milk  '}).values.title === 'Buy milk'"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "  Buy milk  "}]
+    expect: { contains: {"values": {"title": "Buy milk"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
