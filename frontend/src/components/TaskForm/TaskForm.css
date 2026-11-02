@@ -1,0 +1,114 @@
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.task-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.task-form__label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.task-form__input,
+.task-form__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.task-form__input {
+  height: var(--control-height);
+}
+
+.task-form__textarea {
+  min-height: calc(var(--control-height) * 2);
+  resize: vertical;
+}
+
+.task-form__input[aria-invalid="true"],
+.task-form__textarea[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.task-form__input:disabled,
+.task-form__textarea:disabled {
+  opacity: 0.6;
+}
+
+.task-form__error-region:empty {
+  display: none;
+}
+
+.task-form__error {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+}
+
+.task-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.task-form__button {
+  height: var(--control-height);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
+}
+
+.task-form__button--primary {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: var(--border-width) solid var(--color-accent);
+}
+
+.task-form__button--primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.task-form__button--secondary {
+  background: transparent;
+  color: var(--color-text);
+  border: var(--border-width) solid var(--color-border);
+}
+
+.task-form__button--secondary:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+
+.task-form__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-form__input,
+  .task-form__textarea,
+  .task-form__button {
+    transition: none;
+  }
+}

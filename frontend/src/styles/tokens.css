@@ -38,6 +38,7 @@
   /* Layout */
   --container-max: 1100px;
   --touch-target-min: 44px;
+  --control-height: 40px;
 
   /* z-index */
   --z-modal: 100;
