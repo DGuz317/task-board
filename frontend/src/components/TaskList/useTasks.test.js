@@ -134,4 +134,48 @@ describe("useTasks", () => {
     });
     expect(result.current.tasks).toEqual(fresh);
   });
+
+  it("addTask appends a task to the end of the existing list without issuing a fetch", async () => {
+    const initial = [
+      { id: "a", title: "A", description: "", created_at: "t1" },
+      { id: "b", title: "B", description: "", created_at: "t2" },
+    ];
+    fetch.mockResolvedValue(jsonResponse(initial));
+
+    const { result } = renderHook(() => useTasks());
+    await waitFor(() => expect(result.current.tasks).toEqual(initial));
+
+    const created = { id: "c", title: "C", description: "", created_at: "t3" };
+    act(() => {
+      result.current.addTask(created);
+    });
+
+    expect(result.current.tasks).toEqual([...initial, created]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("addTask starts a one-item list when called before the initial fetch resolves", () => {
+    fetch.mockReturnValue(new Promise(() => {}));
+
+    const { result } = renderHook(() => useTasks());
+    expect(result.current.tasks).toBeNull();
+
+    const created = { id: "a", title: "A", description: "", created_at: "t" };
+    act(() => {
+      result.current.addTask(created);
+    });
+
+    expect(result.current.tasks).toEqual([created]);
+  });
+
+  it("keeps a stable addTask reference across re-renders", async () => {
+    fetch.mockResolvedValue(jsonResponse([]));
+    const { result, rerender } = renderHook(() => useTasks());
+    await waitFor(() => expect(result.current.tasks).toEqual([]));
+
+    const firstAddTask = result.current.addTask;
+    rerender();
+
+    expect(result.current.addTask).toBe(firstAddTask);
+  });
 });
