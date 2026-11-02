@@ -139,3 +139,11 @@ cases:
     export: "validateTask"
     args: [{"title": "Buy milk", "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]
     expect: { contains: {"errors": {"description": "Description must be 500 characters or fewer"}} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: A missing/empty description is valid and yields no description error"
+    kind: "testcase"
+    skill_id: "SKILL_002"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/validateTask.ts"
+    export: "validateTask"
+    args: [{"title": "Buy milk"}]
+    expect: { contains: {"isValid": true} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
