@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev:backend": "./scripts/dev-backend.sh",
-    "dev:frontend": "./scripts/dev-frontend.sh"
+    "dev:frontend": "./scripts/dev-frontend.sh",
+    "test": "npm --prefix frontend test"
   }
 }
