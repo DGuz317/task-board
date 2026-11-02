@@ -40,5 +40,9 @@ export function useTasks() {
     load();
   }, [load]);
 
-  return { tasks, reload: load };
+  const addTask = useCallback((task) => {
+    setTasks((prev) => (prev === null ? [task] : [...prev, task]));
+  }, []);
+
+  return { tasks, reload: load, addTask };
 }

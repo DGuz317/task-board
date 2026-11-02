@@ -1,0 +1,30 @@
+.create-button {
+  height: var(--control-height);
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
+}
+
+.create-button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.create-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-button {
+    transition: none;
+  }
+}
