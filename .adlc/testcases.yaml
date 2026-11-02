@@ -147,3 +147,11 @@ cases:
     export: "validateTask"
     args: [{"title": "Buy milk"}]
     expect: { contains: {"isValid": true} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
+  - name: "covers: Submitting title '  Hello  ' with description 'x' calls onSubmit with {title:'Hello', description:'x'}"
+    kind: "testcase"
+    skill_id: "SKILL_003"
+    epic_key: "SCRUM-257"
+    module: "frontend/src/utils/taskValidation.js"
+    export: "normalizeTask"
+    args: [{"title": "  Hello  ", "description": "x"}]
+    expect: { equals: {"title": "Hello", "description": "x"} }  # AI-proposed, human-approved — covers a previously-untested acceptance criterion
