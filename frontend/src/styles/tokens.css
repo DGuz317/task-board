@@ -9,6 +9,8 @@
   --color-error: #b91c1c;
   --color-error-bg: #fef2f2;
   --color-focus-ring: #2563eb;
+  --color-danger: #dc2626;
+  --color-surface-hover: #f3f4f6;
 
   /* Spacing (4px base scale) */
   --space-1: 4px;
@@ -39,6 +41,7 @@
   --container-max: 1100px;
   --touch-target-min: 44px;
   --control-height: 40px;
+  --menu-item-height: 36px;
 
   /* z-index */
   --z-modal: 100;
